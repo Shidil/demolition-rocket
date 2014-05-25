@@ -22,6 +22,5 @@ public class Main {
 		}
 		new LwjglApplication(new Game(), cfg);
 		
-		new LwjglApplication(new Game(), cfg);
 	}
 }

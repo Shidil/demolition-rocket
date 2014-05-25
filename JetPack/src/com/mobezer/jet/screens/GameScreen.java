@@ -9,16 +9,15 @@ import aurelienribon.tweenengine.equations.Quart;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.mobezer.jet.Assets;
 import com.mobezer.jet.Game;
 import com.mobezer.jet.GameWorld;
@@ -26,7 +25,7 @@ import com.mobezer.jet.GlobalSettings;
 import com.mobezer.jet.TextWrapper;
 import com.mobezer.jet.TextureWrapper;
 import com.mobezer.jet.WorldListner;
-import com.mobezer.jet.objects.BoxObjectManager;
+import com.mobezer.jet.objects.Bob;
 import com.mobezer.tween.TextureAccessor;
 
 public class GameScreen extends BaseScreen implements InputProcessor,
@@ -41,12 +40,12 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	Vector3 touchPoint = new Vector3(0, 0, 0);
 	// Variables
 	// ////////////////////////////////////////
+	int lastScore;
+	String scoreString;
 	private OrthographicCamera cam;
 	GameWorld world;
 	TextureWrapper backTexture,whiteMask;
 	FPSLogger fps=new FPSLogger();
-	Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-	Matrix4 debugMatrix;
 	public GameScreen(int screenId, OrthographicCamera cam) {
 		// Assets.loadGame();
 		this.cam = cam;
@@ -59,19 +58,13 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		// Gdx.input.setInputProcessor(this);
 		Gdx.input.setCatchBackKey(true);
 		world = new GameWorld(cam);
-		debugMatrix = new Matrix4(cam.combined.cpy());
-		debugMatrix.scale(BoxObjectManager.BOX_TO_WORLD,
-				BoxObjectManager.BOX_TO_WORLD, 1f);
+		cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
 		Init();
 	}
 
 	private void Init() {
-		/*backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
-				GlobalSettings.VIRTUAL_WIDTH / 2,
-				GlobalSettings.VIRTUAL_HEIGHT / 2));
-		backTexture.SetDimension(cam.viewportWidth, cam.viewportHeight);*/
 		fadeIn();
-		state = GAME_RUNNING;
+		state = GAME_READY;
 		cam.update();
 		InputMultiplexer mux = new InputMultiplexer();
 		mux.addProcessor(this);
@@ -109,8 +102,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void updateGameOver() {
-		// TODO code when game is over
-
+		if (Gdx.input.justTouched()) {
+			exit();
+		}
 	}
 
 	private void updatePaused() {
@@ -119,8 +113,28 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void updateRunning(float delta) {
+		
+		ApplicationType appType = Gdx.app.getType();
+		// should work also with
+		// Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)
+		if (appType == ApplicationType.Android
+				|| appType == ApplicationType.iOS) {
+			world.bobMove(delta, Gdx.input.getAccelerometerX() * 1f);
+		} else {
+			float accel = 0;
+			if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT))
+				accel = 6f;
+			if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT))
+				accel = -6f;
+			world.bobMove(delta, accel);
+		}
 		world.update(delta);
-		// TODO check game over
+		if (Bob.SCORE != lastScore) {
+			lastScore = Bob.SCORE;
+			scoreString = " " + lastScore;
+		}
+		if (world.state == GameWorld.WORLD_STATE_GAME_OVER) 
+			state = GAME_OVER;
 		
 	}
 
@@ -148,6 +162,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void exit() {
+		cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
 		BackScreenID = Game.MENUSCREEN;
 		IsDone = true;
 	}
@@ -181,7 +196,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void updateReady() {
-		
+		if (Gdx.input.justTouched()) {
+			state = GAME_RUNNING;
+		}
 	}
 
 	@Override
@@ -191,9 +208,6 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(cam.combined);
 		batch.begin();
-		//batch.disableBlending();
-		//backTexture.Draw(batch);
-		batch.enableBlending();
 		world.render(batch);
 		if (whiteMask != null)
 			whiteMask.Draw(batch);
@@ -239,14 +253,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 			restart();
 			return true;
 		}
-		if (keycode == Keys.RIGHT) {
-			world.bobRight();
-			return true;
-		}
-		if (keycode == Keys.LEFT ) {
-			world.bobLeft();
-			return true;
-		}
+
 		return false;
 	}
 
@@ -254,11 +261,11 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	public boolean keyUp(int keycode) {
 		// TODO Auto-generated method stub
 		if (keycode == Keys.RIGHT) {
-			world.bobStop();
+			//world.bobStop();
 			return true;
 		}
 		if (keycode == Keys.LEFT ) {
-			world.bobStop();
+			//world.bobStop();
 			return true;
 		}
 		return false;
@@ -276,12 +283,12 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 				Game.CAMWIDTH, Game.CAMHEIGHT);
 		x = (int) TouchPoint.x;
 		y = (int) TouchPoint.y;
-		if(x<Game.CAMWIDTH/2){ // touch left half,move bob left
+		/*if(x<Game.CAMWIDTH/2){ // touch left half,move bob left
 			world.bobLeft();
 		}
 		else{	// right half
 			world.bobRight();
-		}
+		}*/
 		Gdx.app.log("", "" + TouchPoint);
 		return false;
 
@@ -295,7 +302,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
-		world.bobStop();
+		//world.bobStop();
 		return false;
 	}
 

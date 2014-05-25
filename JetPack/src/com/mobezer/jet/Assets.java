@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
@@ -16,21 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 public class Assets {
 	public static AssetManager manager = new AssetManager();
 	public static Music menuMusic;
-	public static Music gameMusic;
-	public static Sound clickSound,restart,victory,bonus,bounce1;
+	public static Sound clickSound,restart,bonus,explode,hit;
 	public static BitmapFont Shemlock;
 	public static TextButtonStyle buttonShemlock = new TextButtonStyle();
 	public static TextureRegion playRegion, backgroundRegion,titleRegion,
 					soundEnabled,soundDisabled;
-	public static TextureRegion pixel,white;
 	public static TextureRegion test;
 	@SuppressWarnings("unused")
 	private static ShaderProgram fontShader;
-	static TextureAtlas atlas;
-	public static AtlasRegion disc;
-	public static AtlasRegion box;
-	public static AtlasRegion boxBg;
-	public static TextureRegion soldier;
+	public static TextureRegion jet,cloud,cloud_storm,enemey;
 
 	public static void Load() {
 	
@@ -46,16 +39,17 @@ public class Assets {
 			
 		}
 		else{
-			manager.load("mainmenu/mainmenu.atlas", TextureAtlas.class);
+			//manager.load("mainmenu/mainmenu.atlas", TextureAtlas.class);
 			manager.load("game/game.atlas", TextureAtlas.class);
 		}
 		
-		manager.load("sounds/crystal_palace.ogg", Music.class);
+		//manager.load("sounds/crystal_palace.ogg", Music.class);
 		manager.load("sounds/click.wav", Sound.class);
 		manager.load("sounds/ui_click.ogg", Sound.class);
 		manager.load("sounds/restart.wav", Sound.class);
-		manager.load("sounds/victory.ogg", Sound.class);
-		manager.load("sounds/bounce1.mp3", Sound.class);
+		manager.load("sounds/bonus.ogg", Sound.class);
+		manager.load("sounds/explode.mp3", Sound.class);
+		manager.load("sounds/hit.wav", Sound.class);
 		LoadFont();
 
 	}
@@ -83,39 +77,30 @@ public class Assets {
 
 	public static void loadGame() {
 		/*ballRegion = Assets.getAtlas("game").findRegion("background");*/
-		restart = manager.get("sounds/restart.wav");
-		victory = manager.get("sounds/victory.ogg");
+
 	}
 
 	public static void loadMenu() {
-		/*playRegion = Assets.getAtlas("mainmenu").findRegion("play");
-		backgroundRegion = Assets.getAtlas("mainmenu").findRegion("background");
-		titleRegion = Assets.getAtlas("mainmenu").findRegion("title");
-		soundDisabled = Assets.getAtlas("mainmenu").findRegion("sound_disabled");
+		playRegion = Assets.getAtlas("game").findRegion("play");
+		backgroundRegion = Assets.getAtlas("game").findRegion("sky");
+		titleRegion = Assets.getAtlas("game").findRegion("logo");
+		/*soundDisabled = Assets.getAtlas("mainmenu").findRegion("sound_disabled");
 		soundEnabled = Assets.getAtlas("mainmenu").findRegion("sound_enabled");*/
-		pixel = Assets.getAtlas("game").findRegion("trace");
 		test = Assets.getAtlas("game").findRegion("white");
-		/*ring = Assets.getAtlas("game").findRegion("ring");
-		ring1 = Assets.getAtlas("game").findRegion("ring_victory");
-		hero = Assets.getAtlas("game").findRegion("ball");*/
-		soldier = Assets.getAtlas("game").findRegion("soldier");
-		disc = Assets.getAtlas("game").findRegion("disc");
-		box = Assets.getAtlas("game").findRegion("box");
-		boxBg = Assets.getAtlas("game").findRegion("box_bg");
-		/*origin = Assets.getAtlas("game").findRegion("origin");
-		ballTrace = Assets.getAtlas("game").findRegion("ball_trace");
-*/
+		jet = Assets.getAtlas("game").findRegion("jet");
+		cloud = Assets.getAtlas("game").findRegion("cloud");
+		cloud_storm = Assets.getAtlas("game").findRegion("cloud_storm");
+		enemey = Assets.getAtlas("game").findRegion("enemey");
 		// Load Music
-		//menuMusic = manager.get("sounds/mainmenu.ogg");
-		//menuMusic.setLooping(true);
-		//menuMusic.setVolume(0.8f);
-		gameMusic = manager.get("sounds/crystal_palace.ogg");
-		//gameMusic = manager.get("sounds/JECT.mp3");
-		gameMusic.setLooping(true);
-		gameMusic.setVolume(0.9f);
+		//gameMusic = manager.get("sounds/crystal_palace.ogg");
+		//gameMusic.setLooping(true);
+		//gameMusic.setVolume(0.9f);
 		// Load Sounds
 		clickSound = manager.get("sounds/ui_click.ogg");
-		bounce1 = manager.get("sounds/bounce1.mp3");
+		explode = manager.get("sounds/explode.mp3");
+		restart = manager.get("sounds/restart.wav");
+		bonus = manager.get("sounds/bonus.ogg");
+		hit = manager.get("sounds/hit.wav");
 	}
 
 	public static void playSound(Sound sound) {
@@ -145,7 +130,6 @@ public class Assets {
 	}
 
 	public static void Dispose() {
-		if(atlas!=null)	atlas.dispose();
 		manager.dispose();
 	}
 }

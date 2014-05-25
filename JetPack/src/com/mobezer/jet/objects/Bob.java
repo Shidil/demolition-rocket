@@ -3,6 +3,7 @@ package com.mobezer.jet.objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mobezer.jet.Assets;
+import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
 
@@ -16,9 +17,9 @@ public class Bob extends DynamicGameObject {
 	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
 	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public static float BOB_FLY_VELOCITY = 30;
-	public static float BOB_MOVE_VELOCITY = 20;
-	public static float BOB_ACCELERATION = 0.4f; // pixels/second/second
+	public static float BOB_FLY_VELOCITY = 120;
+	public static float BOB_MOVE_VELOCITY = 420;
+	public static float BOB_ACCELERATION = 0.5f; // pixels/second/second
 	// score is a static property of the character :D
 	public static int SCORE = 0;
 	public int state;
@@ -29,7 +30,7 @@ public class Bob extends DynamicGameObject {
 	public Bob(float px, float py) {
 		super(px,py,BOB_WIDTH,BOB_HEIGHT);
 		Vector2 pos = new Vector2(px, py);
-		texture = new TextureWrapper(Assets.soldier, pos);
+		texture = new TextureWrapper(Assets.jet, pos);
 		SetTextureDimension(BOB_WIDTH, BOB_HEIGHT);
 		SCORE = 0;
 		state = BOB_STATE_IDLE;
@@ -50,9 +51,42 @@ public class Bob extends DynamicGameObject {
 			stateTime+=dt;
 			runTime+=dt;
 			// give acceleration
-			if(runTime>1.0){
+			if(runTime>40.0){
 				BOB_FLY_VELOCITY+=BOB_ACCELERATION;
 				runTime+=0;
+			}
+			velocity.y = BOB_FLY_VELOCITY;
+			velocity.add(GameWorld.gravity.x * dt, GameWorld.gravity.y * dt);
+			position.add(velocity.x * dt, velocity.y * dt);
+			bounds.x = position.x - bounds.width / 2;
+			bounds.y = position.y - bounds.height / 2;
+
+			if (velocity.y > 0 && state != BOB_STATE_HIT
+					&& state != BOB_STATE_MAGNET) {
+				if (state != BOB_STATE_FLY) {
+					state = BOB_STATE_FLY;
+					stateTime = 0;
+				}
+			}
+			if (velocity.y < 0 && state != BOB_STATE_HIT) {
+				if (state != BOB_STATE_FALL) {
+					state = BOB_STATE_FALL;
+					stateTime = 0;
+				}
+			}
+
+			if (position.x < 0)
+				position.x = GameWorld.WORLD_WIDTH;
+			if (position.x > GameWorld.WORLD_WIDTH)
+				position.x = 0;
+			sheildTime += dt;
+			stateTime += dt;
+			jumpPictureTime+=dt;
+			if(sheildTime>15&&bonusState==BOB_STATE_SHEILD)
+			{
+				stateTime=0;
+				sheildTime=0;
+				bonusState=0;
 			}
 			texture.Position.set(position);
 			// texture.rotation=GetBodyRotationInDegrees();

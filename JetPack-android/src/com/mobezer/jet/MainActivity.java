@@ -21,7 +21,7 @@ public class MainActivity extends AndroidApplication {
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
 		cfg.maxSimultaneousSounds = 4;
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		initialize(new Game(), cfg);
     }
 }

@@ -1,19 +1,29 @@
 package com.mobezer.jet.screens;
 
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
+import aurelienribon.tweenengine.equations.Bounce;
+import aurelienribon.tweenengine.equations.Quart;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mobezer.jet.Assets;
 import com.mobezer.jet.Game;
 import com.mobezer.jet.GlobalSettings;
+import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
 import com.mobezer.jet.WorldListner;
 import com.mobezer.jet.ui.Button;
 import com.mobezer.jet.ui.TouchListner;
 import com.mobezer.jet.ui.WidgetPool;
+import com.mobezer.tween.TextureAccessor;
 
 public class MainMenu extends BaseScreen implements InputProcessor{
 	
@@ -22,7 +32,6 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 	private WidgetPool widgetPool = new WidgetPool();
 	public Button Play;
 	private OrthographicCamera cam;
-	@SuppressWarnings("unused")
 	private TextureWrapper playTexture;
 	
 	public MainMenu(int screenId,OrthographicCamera cam){
@@ -36,12 +45,16 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 		Gdx.input.setInputProcessor(this);
 		Gdx.input.setCatchBackKey(true);
 		this.cam=cam;
+		Gdx.app.log("camera", ""+cam.position);
+		cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
+		Gdx.app.log("camera", ""+cam.position);
+		cam.update();
 		Init();
 	}
 	
 	private void Init() {
 		widgetPool.setGuiCam(cam);
-		/*backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
+		backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2));
 		backTexture.SetDimension(cam.viewportWidth,
@@ -70,8 +83,8 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 				.ease(Quart.OUT))
 		.end()
 		.setCallbackTriggers(TweenCallback.COMPLETE)
-		.start(Game.tweenManager);*/
-		Play=new Button(null, null, "Play", new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2));
+		.start(Game.tweenManager);
+		Play=new Button(playTexture, playTexture1, null, new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2));
 		Play.setOnTapListner(new TouchListner() {
 			@Override
 			public void tap() {
@@ -112,11 +125,11 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		batch.begin();
-		
+		batch.setProjectionMatrix(cam.combined);
 		batch.disableBlending();
-		//backTexture.Draw(batch);
+		backTexture.Draw(batch);
 		batch.enableBlending();
-		//titleTexture.Draw(batch);
+		titleTexture.Draw(batch);
 		widgetPool.draw(batch);
 		batch.end();
 		super.render();		
