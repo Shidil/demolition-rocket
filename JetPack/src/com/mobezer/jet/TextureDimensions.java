@@ -13,10 +13,10 @@ public class TextureDimensions {
 	public static final int TITLE_WIDTH=200;
 	public static final int TITLE_HEIGHT=163;
 	
-	public static final float BOB_HEIGHT = 70;
-	public static final float BOB_WIDTH=42;
+	public static final float BOB_HEIGHT = 96;
+	public static final float BOB_WIDTH=60;
 	
-	public static final float ENEMEY_HEIGHT = 51;
+	public static final float ENEMEY_HEIGHT = 52;
 	public static final float ENEMEY_WIDTH=80;
 	
 	public static final float CLOUD_WIDTH = 80;

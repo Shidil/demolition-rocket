@@ -87,7 +87,7 @@ public class Assets {
 		/*soundDisabled = Assets.getAtlas("mainmenu").findRegion("sound_disabled");
 		soundEnabled = Assets.getAtlas("mainmenu").findRegion("sound_enabled");*/
 		test = Assets.getAtlas("game").findRegion("white");
-		jet = Assets.getAtlas("game").findRegion("jet");
+		jet = Assets.getAtlas("game").findRegion("rocket");
 		cloud = Assets.getAtlas("game").findRegion("cloud");
 		cloud_storm = Assets.getAtlas("game").findRegion("cloud_storm");
 		enemey = Assets.getAtlas("game").findRegion("enemey");

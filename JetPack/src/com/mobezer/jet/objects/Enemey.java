@@ -29,7 +29,7 @@ public class Enemey extends DynamicGameObject {
 	public Enemey(float px, float py) {
 		super(px,py,ENEMEY_WIDTH,ENEMEY_HEIGHT);
 		Vector2 pos = new Vector2(px, py);
-		texture = new TextureWrapper(Assets.enemey, pos);
+		texture = new TextureWrapper(Assets.cloud_storm, pos);
 		SetTextureDimension(ENEMEY_WIDTH, ENEMEY_HEIGHT);
 		SCORE = 0;
 		state = ENEMEY_STATE_IDLE;

@@ -8,6 +8,7 @@ import aurelienribon.tweenengine.equations.Quart;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mobezer.jet.Assets;
@@ -15,6 +16,7 @@ import com.mobezer.jet.Game;
 import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
+import com.mobezer.jet.screens.GameScreen;
 import com.mobezer.tween.TextureAccessor;
 
 public class Bob extends DynamicGameObject {
@@ -29,7 +31,7 @@ public class Bob extends DynamicGameObject {
 	// Define movement variables
 	public static float BOB_FLY_VELOCITY = 200;
 	public static float BOB_MAX_VELOCITY = 500;
-	public static float BOB_MOVE_VELOCITY = 500;
+	public static float BOB_MOVE_VELOCITY = 600;
 	public static float BOB_ACCELERATION = 0.2f; // pixels/second/second
 	// score is a static property of the character :D
 	public static int SCORE = 0;
@@ -44,7 +46,7 @@ public class Bob extends DynamicGameObject {
 		texture = new TextureWrapper(Assets.jet, pos);
 		SetTextureDimension(BOB_WIDTH, BOB_HEIGHT);
 		SCORE = 0;
-		state = BOB_STATE_IDLE;
+		state = BOB_STATE_FLY;
 	}
 
 	public void SetTextureDimension(float width, float height) {
@@ -58,42 +60,47 @@ public class Bob extends DynamicGameObject {
 			texture.Draw(sp);
 	}
 
+
 	public void Update(float dt) {
 			stateTime+=dt;
 			runTime+=dt;
 			// give acceleration
-			if(runTime>8){
-				BOB_FLY_VELOCITY+=BOB_ACCELERATION;
-				if(BOB_FLY_VELOCITY>BOB_MAX_VELOCITY)
-					BOB_FLY_VELOCITY=BOB_MAX_VELOCITY;
-				
-				level++;
+			if(state == BOB_STATE_FLY){
+				if(runTime>8){
+					BOB_FLY_VELOCITY+=BOB_ACCELERATION;
+					if(BOB_FLY_VELOCITY>BOB_MAX_VELOCITY)
+						BOB_FLY_VELOCITY=BOB_MAX_VELOCITY;
+					
+					level++;
+				}
+				if(runTime>10){
+					runTime=0;
+				}
+				velocity.y = BOB_FLY_VELOCITY;
+				double angle=MathUtils.radiansToDegrees*(Math.atan2(velocity.y, velocity.x));
+				angle = angle-90;
+				Timeline.createSequence()
+				.push(Tween.to(texture, TextureAccessor.ROTATION, 0.2f)
+						.target((int) angle).ease(Circ.OUT))
+				.start(Game.tweenManager);
+				//texture.SetRotation((int) angle);
+				if(velocity.x>0){
+					velocity.y = (float) (velocity.y+((int) angle-20));
+					if(velocity.y<30)
+						velocity.y = 30;
+				}
+				if(velocity.x<0){
+					velocity.y = (float) (velocity.y-((int) angle+20));
+					if(velocity.y<50)
+						velocity.y = 50;
+				}
+				//Gdx.app.log("velocity", ""+(velocity));
 			}
-			if(runTime>10){
-				runTime=0;
-			}
-			velocity.y = BOB_FLY_VELOCITY;
-			double angle=MathUtils.radiansToDegrees*(Math.atan2(velocity.y, velocity.x));
-			angle = angle-90;
-			Timeline.createSequence()
-			.push(Tween.to(texture, TextureAccessor.ROTATION, 0.2f)
-					.target((int) angle).ease(Circ.OUT))
-			.start(Game.tweenManager);
-			//texture.SetRotation((int) angle);
-			if(velocity.x>0){
-				velocity.y = (float) (velocity.y+((int) angle));
-				if(velocity.y<30)
-					velocity.y = 30;
-			}
-			if(velocity.x<0){
-				velocity.y = (float) (velocity.y-((int) angle));
-				if(velocity.y<50)
-					velocity.y = 50;
-			}
-			Gdx.app.log("velocity", ""+(velocity));
+
 			velocity.add(GameWorld.gravity.x * dt, GameWorld.gravity.y * dt);
 			position.add(velocity.x * dt, velocity.y * dt);
 			bounds.x = position.x - bounds.width / 2;
+			
 			bounds.y = position.y - bounds.height / 2;
 
 			if (velocity.y > 0 && state != BOB_STATE_HIT
@@ -110,10 +117,10 @@ public class Bob extends DynamicGameObject {
 				}
 			}
 
-			if (position.x < 0)
+			/*if (position.x < 0)
 				position.x = GameWorld.WORLD_WIDTH;
 			if (position.x > GameWorld.WORLD_WIDTH)
-				position.x = 0;
+				position.x = 0;*/
 			sheildTime += dt;
 			stateTime += dt;
 			jumpPictureTime+=dt;
@@ -125,6 +132,7 @@ public class Bob extends DynamicGameObject {
 			}
 			
 			texture.Position.set(position);
+			//bounds.
 			// texture.rotation=GetBodyRotationInDegrees();
 	}
 	
@@ -147,5 +155,11 @@ public class Bob extends DynamicGameObject {
 	public void catchPack(int package_TYPE) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public void hitStorm() {
+		velocity.y = 10;
+		state = BOB_STATE_HIT;
+		stateTime = 0;
 	}
 }

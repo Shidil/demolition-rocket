@@ -5,11 +5,19 @@ import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.mobezer.jet.objects.Bob;
 import com.mobezer.jet.objects.Enemey;
+import com.mobezer.jet.objects.OverlapTester;
 
 public class GameWorld {
 	// World constants
@@ -21,6 +29,9 @@ public class GameWorld {
 	public static final int WORLD_HEIGHT = GlobalSettings.VIRTUAL_HEIGHT;
 	public static final Vector2 gravity = new Vector2(0, 0);
 	public static OrthographicCamera camera; // camera to obtain projection
+	// particles
+	ParticleEffectPool smokeEffectPool;
+	Array<PooledEffect> effects = new Array<PooledEffect>();
 									
 	// Others
 	public static final Random random=new Random();
@@ -41,10 +52,17 @@ public class GameWorld {
 		GameWorld.camera = cam;
 		bob = new Bob(180, 80);
 		enemies = new ArrayList<Enemey>();
+		leveledSoFar = 400;
 		backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2));
 		backTexture.SetDimension(cam.viewportWidth, cam.viewportHeight);
+		ParticleEffect smokeEffect = new ParticleEffect();
+		smokeEffect.load(Gdx.files.internal("particles/smoke.p"), Assets.getAtlas("game"));
+		smokeEffectPool = new ParticleEffectPool(smokeEffect, 1, 1);
+		PooledEffect effect = smokeEffectPool.obtain();
+		effect.setPosition(bob.position.x-50, bob.position.y-50);
+		effects.add(effect);
 		this.state = WORLD_STATE_RUNNING;
 	}
 
@@ -56,13 +74,18 @@ public class GameWorld {
 			updateEnemy(delta);
 			updateClouds(delta);
 			heightSoFar = Math.max(bob.position.y, heightSoFar);
+			if (bob.state != Bob.BOB_STATE_HIT)
+				checkCollisions();
+			checkGameOver();
 		}
 	}
+
+
 	private void updateLevel(float delta){
 		if(bob.position.y+1200<leveledSoFar)
 			return;
 		float y = leveledSoFar+20;
-		float diff=220;
+		float diff=250;
 		while (y < leveledSoFar + WORLD_WIDTH * 2) {
 			float x = random.nextFloat()* (WORLD_WIDTH - Enemey.ENEMEY_WIDTH)
 					+ Enemey.ENEMEY_WIDTH / 2;
@@ -77,8 +100,8 @@ public class GameWorld {
 			createDiamonds(platform);
 			createEnemies(platform);*/
 
-			y += (diff / 1.5f);
-			y += random.nextFloat() * .5;
+			y += (diff / 1.4f);
+			y += random.nextFloat() * .4;
 		}
 		leveledSoFar = y;
 	}
@@ -120,15 +143,42 @@ public class GameWorld {
 		batch.disableBlending();
 		backTexture.Draw(batch);
 		batch.enableBlending();
+		// Update and draw effects:
+		for (int i = effects.size - 1; i >= 0; i--) {
+		    PooledEffect effect = effects.get(i);
+			effect.setPosition(bob.position.x, bob.position.y);
+		    effect.draw(batch, Gdx.graphics.getDeltaTime()/2);
+		    if (effect.isComplete()) {
+		        effect.free();
+		        effects.removeIndex(i);
+		    }
+		}
 		bob.Draw(batch);
 		renderEnemy(batch);
 		renderClouds(batch);
+		drawDebug(batch);
 	}
 
 	
+	private void drawDebug(SpriteBatch batch) {
+		batch.end();
+		ShapeRenderer shapeRenderer = new ShapeRenderer();
+		shapeRenderer .setProjectionMatrix(GameWorld.camera.combined);
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(Color.RED);
+		shapeRenderer.rect(bob.bounds.x, bob.bounds.y, bob.bounds.width, bob.bounds.height);
+		int size = enemies.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Enemey enemey = enemies.get(i);
+				shapeRenderer.rect(enemey.bounds.x, enemey.bounds.y, enemey.bounds.width, enemey.bounds.height);
+			}
+		shapeRenderer.end();
+		batch.begin();
+	}
+
 	private void renderClouds(SpriteBatch batch) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void renderEnemy(SpriteBatch batch) {
@@ -140,7 +190,9 @@ public class GameWorld {
 	}
 
 	public void dispose() {
-		
+		for (int i = effects.size - 1; i >= 0; i--)
+		    effects.get(i).free();
+		effects.clear();
 	}
 
 	public void tap() {
@@ -161,6 +213,27 @@ public class GameWorld {
 		}
 			
 
+	}
+	private void checkCollisions() {
+		checkEnemeyCollisions();
+		
+	}
+
+	private void checkEnemeyCollisions() {
+		int size = enemies.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Enemey enemey = enemies.get(i);
+				if (OverlapTester.overlapRectangles(bob.bounds, enemey.bounds)) {
+					bob.hitStorm();
+					WorldListner.hit();
+				}
+			}
+	}
+
+	private void checkGameOver() {
+		// TODO Auto-generated method stub
+		
 	}
 
 
