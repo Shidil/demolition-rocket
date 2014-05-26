@@ -57,7 +57,7 @@ public class Assets {
 	private static void LoadFont() {
 		// Load Fonts
 		Texture fontTex = new Texture(
-				Gdx.files.internal("fonts/Shemlock48Outline-hd.png"), true);
+				Gdx.files.internal("fonts/Shemlock48Outline.png"), true);
 		// Texture fontTex=new
 		// Texture(Gdx.files.internal("fonts/fff.png"),true);
 		fontTex.setFilter(TextureFilter.MipMapLinearLinear,
@@ -66,9 +66,9 @@ public class Assets {
 		TextureRegion fontTexRegion = new TextureRegion(fontTex);
 		Shemlock = new BitmapFont(
 				// Gdx.files.internal("fonts/fff.fnt"),fontTexRegion,false);
-				Gdx.files.internal("fonts/Shemlock48Outline-hd.fnt"),
+				Gdx.files.internal("fonts/Shemlock48Outline.fnt"),
 				fontTexRegion, false);
-		Shemlock.setScale(0.5f);
+		//Shemlock.setScale(0.5f);
 		//Shemlock.setColor(Color.RED);
 		buttonShemlock.font = Shemlock;// TODO Auto-generated method stub
 

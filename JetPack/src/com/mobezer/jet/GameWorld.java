@@ -3,6 +3,8 @@ package com.mobezer.jet;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -17,7 +19,7 @@ public class GameWorld {
 	public static final int GAME_UNIT = 48;
 	public static final int WORLD_WIDTH = GlobalSettings.VIRTUAL_WIDTH;
 	public static final int WORLD_HEIGHT = GlobalSettings.VIRTUAL_HEIGHT;
-	public static final Vector2 gravity = new Vector2(0, -100);
+	public static final Vector2 gravity = new Vector2(0, 0);
 	public static OrthographicCamera camera; // camera to obtain projection
 									
 	// Others
@@ -33,7 +35,7 @@ public class GameWorld {
 	public float heightSoFar;
 
 	// a list of points that define path of the heroBall
-	float stateTime;
+	float stateTime,scoreTime=0;
 	private TextureWrapper backTexture;
 	public GameWorld(OrthographicCamera cam) {
 		GameWorld.camera = cam;
@@ -81,9 +83,13 @@ public class GameWorld {
 		leveledSoFar = y;
 	}
 	private void updateBob(float delta) {
-		camera.position.y = bob.position.y + 240f;
+		camera.position.y = bob.position.y + 160f;
 		camera.update();
-		Bob.SCORE += 4;
+		if(scoreTime>4){
+			Bob.SCORE += 1;
+			scoreTime = 0;
+		}
+		scoreTime++;
 		bob.Update(delta);
 	}
 
@@ -142,8 +148,18 @@ public class GameWorld {
 	}
 
 	public void bobMove(float delta, float accel) {	
-		if (bob.state != Bob.BOB_STATE_HIT)
-			bob.velocity.x = -accel / 10 * Bob.BOB_MOVE_VELOCITY;
+		if (bob.state != Bob.BOB_STATE_HIT){
+			ApplicationType appType = Gdx.app.getType();
+			// should work also with
+			// Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)
+			if (appType == ApplicationType.Android
+					|| appType == ApplicationType.iOS) {
+				bob.velocity.x = -accel / 2 * Bob.BOB_MOVE_VELOCITY;
+			} else {
+				bob.velocity.x = -accel / 10 * Bob.BOB_MOVE_VELOCITY;
+			}
+		}
+			
 
 	}
 

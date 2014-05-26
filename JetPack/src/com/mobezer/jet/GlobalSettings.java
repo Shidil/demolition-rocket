@@ -5,8 +5,8 @@ import com.badlogic.gdx.Preferences;
 
 public class GlobalSettings {
 	
-	public static final int VIRTUAL_WIDTH=360;
-	public static final int VIRTUAL_HEIGHT=640;
+	public static final int VIRTUAL_WIDTH=320;
+	public static final int VIRTUAL_HEIGHT=480;
 	
 	public static final float BOX_STEP=1/60f;
 	public static final int VELOCITY_ITERATIONS=6;

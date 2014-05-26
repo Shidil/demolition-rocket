@@ -41,7 +41,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	// Variables
 	// ////////////////////////////////////////
 	int lastScore;
-	String scoreString;
+	String scoreString="";
 	private OrthographicCamera cam;
 	GameWorld world;
 	TextureWrapper backTexture,whiteMask;
@@ -119,7 +119,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		// Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)
 		if (appType == ApplicationType.Android
 				|| appType == ApplicationType.iOS) {
-			world.bobMove(delta, Gdx.input.getAccelerometerX() * 1f);
+			world.bobMove(delta, Gdx.input.getAccelerometerX() * 0.3f);
 		} else {
 			float accel = 0;
 			if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT))
@@ -211,11 +211,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		world.render(batch);
 		if (whiteMask != null)
 			whiteMask.Draw(batch);
-		TextWrapper fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(600,340));
+		//TextWrapper fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(280,470));
+		TextWrapper fp = new TextWrapper("Score "+scoreString, Assets.Shemlock, new Vector2(260,cam.position.y+230));
 		fp.Draw(batch);
-		//batch.disableBlending();
-		//debugRenderer.render(BoxObjectManager.GetWorld(), debugMatrix);
-		//batch.enableBlending();
 		batch.end();
 
 	}
