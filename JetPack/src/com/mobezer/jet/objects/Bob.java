@@ -2,21 +2,16 @@ package com.mobezer.jet.objects;
 
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.equations.Circ;
-import aurelienribon.tweenengine.equations.Quart;
-
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.mobezer.jet.Assets;
 import com.mobezer.jet.Game;
 import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
-import com.mobezer.jet.screens.GameScreen;
 import com.mobezer.tween.TextureAccessor;
 
 public class Bob extends DynamicGameObject {
@@ -39,12 +34,20 @@ public class Bob extends DynamicGameObject {
 	public int bonusState,level=1;
 	public TextureWrapper texture;
 	public float stateTime=0,runTime=0, sheildTime = 0, jumpPictureTime = 0;
+	public Polygon polyBounds;
+	public float []vertices;
 
 	public Bob(float px, float py) {
 		super(px,py,BOB_WIDTH,BOB_HEIGHT);
 		Vector2 pos = new Vector2(px, py);
 		texture = new TextureWrapper(Assets.jet, pos);
 		SetTextureDimension(BOB_WIDTH, BOB_HEIGHT);
+		vertices = new float[]{0,41,11,26,20,-10,16,-22,0,-28,-15,-25,-18,-10,-11,23};
+		polyBounds = new Polygon();
+		polyBounds.setOrigin(0, 0);
+		polyBounds.setOrigin(px, py);
+		polyBounds.setPosition(px, py);
+		polyBounds.setVertices(vertices);
 		SCORE = 0;
 		state = BOB_STATE_FLY;
 	}
@@ -58,6 +61,7 @@ public class Bob extends DynamicGameObject {
 		
 			//Gdx.app.log("bob", "" + texture.Position);
 			texture.Draw(sp);
+			
 	}
 
 
@@ -132,6 +136,11 @@ public class Bob extends DynamicGameObject {
 			}
 			
 			texture.Position.set(position);
+			polyBounds.setPosition(position.x, position.y);
+			polyBounds.setOrigin(0, 0);
+			polyBounds.dirty();
+			polyBounds.setRotation(texture.getRotation());
+			polyBounds.dirty();
 			//bounds.
 			// texture.rotation=GetBodyRotationInDegrees();
 	}
@@ -158,7 +167,7 @@ public class Bob extends DynamicGameObject {
 	}
 
 	public void hitStorm() {
-		velocity.y = 10;
+		velocity.set(10,10);
 		state = BOB_STATE_HIT;
 		stateTime = 0;
 	}

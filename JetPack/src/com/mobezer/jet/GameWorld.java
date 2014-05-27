@@ -13,11 +13,11 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.mobezer.jet.objects.Bob;
 import com.mobezer.jet.objects.Enemey;
-import com.mobezer.jet.objects.OverlapTester;
 
 public class GameWorld {
 	// World constants
@@ -85,7 +85,7 @@ public class GameWorld {
 		if(bob.position.y+1200<leveledSoFar)
 			return;
 		float y = leveledSoFar+20;
-		float diff=250;
+		float diff=220;
 		while (y < leveledSoFar + WORLD_WIDTH * 2) {
 			float x = random.nextFloat()* (WORLD_WIDTH - Enemey.ENEMEY_WIDTH)
 					+ Enemey.ENEMEY_WIDTH / 2;
@@ -166,12 +166,12 @@ public class GameWorld {
 		shapeRenderer .setProjectionMatrix(GameWorld.camera.combined);
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(Color.RED);
-		shapeRenderer.rect(bob.bounds.x, bob.bounds.y, bob.bounds.width, bob.bounds.height);
+		shapeRenderer.polygon(bob.polyBounds.getTransformedVertices());
 		int size = enemies.size();
 		if(size>0)
 			for(int i = 0;i<size;i++){
 				Enemey enemey = enemies.get(i);
-				shapeRenderer.rect(enemey.bounds.x, enemey.bounds.y, enemey.bounds.width, enemey.bounds.height);
+				shapeRenderer.polygon(enemey.polyBounds.getTransformedVertices());
 			}
 		shapeRenderer.end();
 		batch.begin();
@@ -224,7 +224,7 @@ public class GameWorld {
 		if(size>0)
 			for(int i = 0;i<size;i++){
 				Enemey enemey = enemies.get(i);
-				if (OverlapTester.overlapRectangles(bob.bounds, enemey.bounds)) {
+				if (Intersector.overlapConvexPolygons(bob.polyBounds, enemey.polyBounds)) {
 					bob.hitStorm();
 					WorldListner.hit();
 				}
