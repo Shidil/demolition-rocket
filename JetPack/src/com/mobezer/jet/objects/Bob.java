@@ -24,10 +24,10 @@ public class Bob extends DynamicGameObject {
 	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
 	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public static float BOB_FLY_VELOCITY = 200;
-	public static float BOB_MAX_VELOCITY = 500;
-	public static float BOB_MOVE_VELOCITY = 600;
-	public static float BOB_ACCELERATION = 0.2f; // pixels/second/second
+	public static float BOB_FLY_VELOCITY = 170;
+	public static float BOB_MAX_VELOCITY = 300;
+	public static float BOB_MOVE_VELOCITY = 530;
+	public static float BOB_ACCELERATION = 0.13f; // pixels/second/second
 	// score is a static property of the character :D
 	public static int SCORE = 0;
 	public int state;
@@ -121,10 +121,10 @@ public class Bob extends DynamicGameObject {
 				}
 			}
 
-			/*if (position.x < 0)
-				position.x = GameWorld.WORLD_WIDTH;
-			if (position.x > GameWorld.WORLD_WIDTH)
-				position.x = 0;*/
+			if (position.x-(BOB_WIDTH/2-10) < 0)
+				position.x = BOB_WIDTH/2-10;
+			if (position.x+(BOB_WIDTH/2-10) > GameWorld.WORLD_WIDTH)
+				position.x = GameWorld.WORLD_WIDTH-(BOB_WIDTH/2-10);
 			sheildTime += dt;
 			stateTime += dt;
 			jumpPictureTime+=dt;
@@ -167,7 +167,7 @@ public class Bob extends DynamicGameObject {
 	}
 
 	public void hitStorm() {
-		velocity.set(10,10);
+		velocity.set(0,10);
 		state = BOB_STATE_HIT;
 		stateTime = 0;
 	}

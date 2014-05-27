@@ -85,9 +85,14 @@ public class GameWorld {
 		if(bob.position.y+1200<leveledSoFar)
 			return;
 		float y = leveledSoFar+20;
-		float diff=220;
+		float diff=200;
+		float x;
 		while (y < leveledSoFar + WORLD_WIDTH * 2) {
-			float x = random.nextFloat()* (WORLD_WIDTH - Enemey.ENEMEY_WIDTH)
+			float off=20;
+			if(random.nextBoolean()==true){
+				off=-20+WORLD_WIDTH/2;
+			}
+			x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
 					+ Enemey.ENEMEY_WIDTH / 2;
 
 			Enemey ene = new Enemey(x, y);
@@ -156,7 +161,7 @@ public class GameWorld {
 		bob.Draw(batch);
 		renderEnemy(batch);
 		renderClouds(batch);
-		drawDebug(batch);
+		//drawDebug(batch);
 	}
 
 	
