@@ -119,7 +119,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		// Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)
 		if (appType == ApplicationType.Android
 				|| appType == ApplicationType.iOS) {
-			world.bobMove(delta, Gdx.input.getAccelerometerX() * 0.3f);
+			world.bobMove(delta, Gdx.input.getAccelerometerX() * 0.1f);
 		} else {
 			float accel = 0;
 			if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT))
@@ -213,6 +213,8 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 			whiteMask.Draw(batch);
 		//TextWrapper fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(280,470));
 		TextWrapper fp = new TextWrapper("Score "+scoreString, Assets.Shemlock, new Vector2(260,cam.position.y+230));
+		fp.Draw(batch);
+		fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(50,cam.position.y+230));
 		fp.Draw(batch);
 		batch.end();
 
