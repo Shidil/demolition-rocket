@@ -81,10 +81,12 @@ public class GameWorld {
 	}
 
 
+	@SuppressWarnings("unused")
 	private void updateLevel(float delta){
 		if(bob.position.y+1200<leveledSoFar)
 			return;
 		float y = leveledSoFar+20;
+		int right = 0,left=0;
 		float diff=200;
 		float x;
 		while (y < leveledSoFar + WORLD_WIDTH * 2) {
@@ -94,7 +96,26 @@ public class GameWorld {
 			}
 			x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
 					+ Enemey.ENEMEY_WIDTH / 2;
-
+			if(x>WORLD_WIDTH/2){ 
+				left = 0;
+				right++;
+			}
+			else{
+				right = 0;
+				left++;
+			}
+			if(right>=2){
+				right = 0;
+				off = 20;
+				x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
+						+ Enemey.ENEMEY_WIDTH / 2;
+			}
+			if(left>=2){
+				left = 0;
+				off=-20+WORLD_WIDTH/2;
+				x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
+						+ Enemey.ENEMEY_WIDTH / 2;
+			}
 			Enemey ene = new Enemey(x, y);
 			enemies.add(ene);
 			/*oneItem = false;
@@ -104,7 +125,7 @@ public class GameWorld {
 			createWings(platform);
 			createDiamonds(platform);
 			createEnemies(platform);*/
-
+	
 			y += (diff / 1.4f);
 			y += random.nextFloat() * .4;
 		}
