@@ -24,10 +24,10 @@ public class Bob extends DynamicGameObject {
 	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
 	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public static float BOB_FLY_VELOCITY = 170;
+	public static float BOB_FLY_VELOCITY = 180;
 	public static float BOB_MAX_VELOCITY = 300;
-	public static float BOB_MOVE_VELOCITY = 530;
-	public static float BOB_ACCELERATION = 0.13f; // pixels/second/second
+	public static float BOB_MOVE_VELOCITY = 550;
+	public static float BOB_ACCELERATION = 0.2f; // pixels/second/second
 	// score is a static property of the character :D
 	public static int SCORE = 0;
 	public int state;
@@ -70,31 +70,31 @@ public class Bob extends DynamicGameObject {
 			runTime+=dt;
 			// give acceleration
 			if(state == BOB_STATE_FLY){
-				if(runTime>8){
+				if(runTime>7){
 					BOB_FLY_VELOCITY+=BOB_ACCELERATION;
 					if(BOB_FLY_VELOCITY>BOB_MAX_VELOCITY)
 						BOB_FLY_VELOCITY=BOB_MAX_VELOCITY;
 					
 					level++;
 				}
-				if(runTime>10){
+				if(runTime>9){
 					runTime=0;
 				}
 				velocity.y = BOB_FLY_VELOCITY;
 				double angle=MathUtils.radiansToDegrees*(Math.atan2(velocity.y, velocity.x));
 				angle = angle-90;
 				Timeline.createSequence()
-				.push(Tween.to(texture, TextureAccessor.ROTATION, 0.2f)
+				.push(Tween.to(texture, TextureAccessor.ROTATION, 0.24f)
 						.target((int) angle).ease(Circ.OUT))
 				.start(Game.tweenManager);
 				//texture.SetRotation((int) angle);
 				if(velocity.x>0){
-					velocity.y = (float) (velocity.y+((int) angle-20));
+					velocity.y = (float) (velocity.y+((int) angle+30));
 					if(velocity.y<30)
 						velocity.y = 30;
 				}
 				if(velocity.x<0){
-					velocity.y = (float) (velocity.y-((int) angle+20));
+					velocity.y = (float) (velocity.y-((int) angle-30));
 					if(velocity.y<50)
 						velocity.y = 50;
 				}

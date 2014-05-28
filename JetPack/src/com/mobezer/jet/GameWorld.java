@@ -81,7 +81,6 @@ public class GameWorld {
 	}
 
 
-	@SuppressWarnings("unused")
 	private void updateLevel(float delta){
 		if(bob.position.y+1200<leveledSoFar)
 			return;
@@ -186,6 +185,7 @@ public class GameWorld {
 	}
 
 	
+	@SuppressWarnings("unused")
 	private void drawDebug(SpriteBatch batch) {
 		batch.end();
 		ShapeRenderer shapeRenderer = new ShapeRenderer();

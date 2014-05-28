@@ -214,6 +214,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		//TextWrapper fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(280,470));
 		TextWrapper fp = new TextWrapper("Score "+scoreString, Assets.Shemlock, new Vector2(260,cam.position.y+230));
 		fp.Draw(batch);
+		fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(50,cam.position.y+230));
+		fp.Draw(batch);
+
 		batch.end();
 
 	}
