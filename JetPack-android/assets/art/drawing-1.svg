@@ -1269,7 +1269,7 @@
     </g>
     <path
        transform="matrix(1.0869565,0,0,0.98461534,-125.80746,435.17536)"
-       d="m -598.57143,229.28572 a 16.428572,46.42857 0 1 1 -32.85714,0 16.428572,46.42857 0 1 1 32.85714,0 z"
+       d="m -598.57143,229.28572 c 0,25.64179 -7.35532,46.42857 -16.42857,46.42857 -9.07325,0 -16.42857,-20.78678 -16.42857,-46.42857 0,-25.64179 7.35532,-46.42857 16.42857,-46.42857 9.07325,0 16.42857,20.78678 16.42857,46.42857 z"
        sodipodi:ry="46.42857"
        sodipodi:rx="16.428572"
        sodipodi:cy="229.28572"
@@ -1451,10 +1451,10 @@
     </g>
     <g
        id="g4852"
-       transform="translate(-1083.6486,-65.122552)"
-       inkscape:export-filename="E:\gamedev\htdocs\dodge\images\logo.png"
-       inkscape:export-xdpi="72.081718"
-       inkscape:export-ydpi="72.081718">
+       transform="translate(-649.36289,-195.12255)"
+       inkscape:export-filename="E:\android\Tools\Libgdx\Prototypes\JetPack\JetPack-android\assets\game\hd\logo.png"
+       inkscape:export-xdpi="144.16341"
+       inkscape:export-ydpi="144.16341">
       <g
          inkscape:transform-center-y="-7.0710683"
          transform="matrix(0.60407836,0.35156733,-0.35326224,0.59768594,493.4932,431.86386)"

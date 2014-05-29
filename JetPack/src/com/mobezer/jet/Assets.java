@@ -33,8 +33,8 @@ public class Assets {
 			Gdx.app.error("fontShader",
 					"compilation failed:\n" + fontShader.getLog());
 		}*/
-		if (Gdx.graphics.getWidth()>=1000){
-			manager.load("mainmenu/mainmenu_hd.atlas", TextureAtlas.class);
+		if (Gdx.graphics.getWidth()>=480){
+			//manager.load("mainmenu/mainmenu_hd.atlas", TextureAtlas.class);
 			manager.load("game/game_hd.atlas", TextureAtlas.class);
 			
 		}
@@ -109,7 +109,7 @@ public class Assets {
 	}
 
 	public static TextureAtlas getAtlas(String name) {
-		if (Gdx.graphics.getWidth()>=1000){
+		if (Gdx.graphics.getWidth()>=480){
 			if (name.equals("game"))
 				return manager.get("game/game_hd.atlas", TextureAtlas.class);
 			if (name.equals("common"))

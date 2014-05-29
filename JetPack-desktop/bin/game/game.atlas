@@ -5,77 +5,56 @@ filter: MipMap,Linear
 repeat: none
 sky
   rotate: false
-  xy: 2, 343
+  xy: 2, 223
   size: 360, 640
   orig: 360, 640
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 2, 176
+  xy: 2, 56
   size: 200, 163
   orig: 200, 163
   offset: 0, 0
   index: -1
-boy
-  rotate: false
-  xy: 366, 804
-  size: 109, 179
-  orig: 109, 179
-  offset: 0, 0
-  index: -1
 rocket
   rotate: false
-  xy: 2, 76
+  xy: 366, 767
   size: 60, 96
   orig: 60, 96
   offset: 0, 0
   index: -1
-play
-  rotate: false
-  xy: 206, 289
-  size: 100, 50
-  orig: 100, 50
-  offset: 0, 0
-  index: -1
 cloud_storm
   rotate: false
-  xy: 366, 748
+  xy: 430, 811
   size: 80, 52
   orig: 80, 52
   offset: 0, 0
   index: -1
-enemey
+play
   rotate: false
-  xy: 66, 121
-  size: 80, 51
-  orig: 80, 51
+  xy: 2, 2
+  size: 100, 50
+  orig: 100, 50
   offset: 0, 0
   index: -1
 cloud
   rotate: false
-  xy: 206, 246
+  xy: 206, 180
   size: 79, 39
   orig: 79, 39
   offset: 0, 0
   index: -1
-jet
-  rotate: false
-  xy: 2, 2
-  size: 42, 70
-  orig: 42, 70
-  offset: 0, 0
-  index: -1
 particle
   rotate: false
-  xy: 479, 975
+  xy: 366, 755
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 white
   rotate: false
-  xy: 310, 338
+  xy: 430, 806
   size: 1, 1
   orig: 1, 1
   offset: 0, 0

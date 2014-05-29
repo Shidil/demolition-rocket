@@ -160,11 +160,12 @@ public class Game implements ApplicationListener {
 
 	@Override
 	public void resize(int width, int height) {
-		/*_camera = CameraHelper.GetCamera(GlobalSettings.VIRTUAL_WIDTH,
+		_camera = CameraHelper.GetCamera(GlobalSettings.VIRTUAL_WIDTH,
 				GlobalSettings.VIRTUAL_HEIGHT);
 		SetupZoom();
-		_camera.update();*/
+		_camera.update();
 		Gdx.app.log(Game.LOG, "Resizing game to: " + width + " x " + height);
+		Gdx.app.log("Camera", "startx: " + CAMSTARTX + " starty " + CAMSTARTY+"width: " + CAMWIDTH + " height " + CAMHEIGHT);
 
 	}
 

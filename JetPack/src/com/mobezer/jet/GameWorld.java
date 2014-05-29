@@ -6,6 +6,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
@@ -48,6 +49,7 @@ public class GameWorld {
 	// a list of points that define path of the heroBall
 	float stateTime,scoreTime=0;
 	private TextureWrapper backTexture;
+	private ShapeRenderer shapes = new ShapeRenderer();
 	public GameWorld(OrthographicCamera cam) {
 		GameWorld.camera = cam;
 		bob = new Bob(180, 80);
@@ -56,7 +58,7 @@ public class GameWorld {
 		backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2));
-		backTexture.SetDimension(cam.viewportWidth, cam.viewportHeight);
+		backTexture.SetDimension(GlobalSettings.VIRTUAL_WIDTH, GlobalSettings.VIRTUAL_HEIGHT);
 		ParticleEffect smokeEffect = new ParticleEffect();
 		smokeEffect.load(Gdx.files.internal("particles/smoke.p"), Assets.getAtlas("game"));
 		smokeEffectPool = new ParticleEffectPool(smokeEffect, 1, 1);
@@ -126,7 +128,7 @@ public class GameWorld {
 			createEnemies(platform);*/
 	
 			y += (diff / 1.4f);
-			y += random.nextFloat() * .4;
+			y -= random.nextFloat() * 20;
 		}
 		leveledSoFar = y;
 	}
@@ -164,9 +166,42 @@ public class GameWorld {
 	}
 
 	public void render(SpriteBatch batch) {
+		batch.end();
+		//2. clear our depth buffer with 1.0
+		Gdx.gl.glClearDepthf(1f);
+		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
+		
+		//3. set the function to LESS
+		Gdx.gl.glDepthFunc(GL20.GL_LESS);
+		
+		//4. enable depth writing
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		
+		//5. Enable depth writing, disable RGBA color writing 
+		Gdx.gl.glDepthMask(true);
+		Gdx.gl.glColorMask(false, false, false, false);
+		shapes .setProjectionMatrix(camera.combined);
+		shapes.begin(ShapeType.Filled);	 
+		shapes.setColor(0f, 1f, 0f, 0.5f);
+		shapes.rect(camera.position.x-(GlobalSettings.VIRTUAL_WIDTH/2), camera.position.y-(GlobalSettings.VIRTUAL_HEIGHT/2), GlobalSettings.VIRTUAL_WIDTH, GlobalSettings.VIRTUAL_HEIGHT);	
+		shapes.end();
+		///////////// Draw sprite(s) to be masked
+		batch.begin();
+		//8. Enable RGBA color writing
+		//   (SpriteBatch.begin() will disable depth mask)
+		Gdx.gl.glColorMask(true, true, true, true);
+		
+		//9. Make sure testing is enabled.
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		
+		//10. Now depth discards pixels outside our masked shapes
+		Gdx.gl.glDepthFunc(GL20.GL_EQUAL);
 		backTexture.setPosition(camera.position.x,camera.position.y);
 		batch.disableBlending();
 		backTexture.Draw(batch);
+
+		
+		
 		batch.enableBlending();
 		// Update and draw effects:
 		for (int i = effects.size - 1; i >= 0; i--) {
@@ -189,7 +224,7 @@ public class GameWorld {
 	private void drawDebug(SpriteBatch batch) {
 		batch.end();
 		ShapeRenderer shapeRenderer = new ShapeRenderer();
-		shapeRenderer .setProjectionMatrix(GameWorld.camera.combined);
+		shapeRenderer .setProjectionMatrix(camera.combined);
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(Color.RED);
 		shapeRenderer.polygon(bob.polyBounds.getTransformedVertices());

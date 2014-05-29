@@ -1,5 +1,6 @@
 package com.mobezer.jet.screens;
 
+import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
@@ -12,9 +13,12 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mobezer.jet.Assets;
+import com.mobezer.jet.CameraHelper;
 import com.mobezer.jet.Game;
 import com.mobezer.jet.GlobalSettings;
 import com.mobezer.jet.TextureDimensions;
@@ -33,6 +37,8 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 	public Button Play;
 	private OrthographicCamera cam;
 	private TextureWrapper playTexture;
+	private ShapeRenderer shapes = new ShapeRenderer();
+	private TextureWrapper whiteMask;
 	
 	public MainMenu(int screenId,OrthographicCamera cam){
 		super("MenuScreen");
@@ -45,20 +51,19 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 		Gdx.input.setInputProcessor(this);
 		Gdx.input.setCatchBackKey(true);
 		this.cam=cam;
-		Gdx.app.log("camera", ""+cam.position);
-		cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
-		Gdx.app.log("camera", ""+cam.position);
+		cam.position.set(CameraHelper.camX, CameraHelper.camY, 0);
 		cam.update();
 		Init();
 	}
 	
 	private void Init() {
+
 		widgetPool.setGuiCam(cam);
 		backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2));
-		backTexture.SetDimension(cam.viewportWidth,
-				cam.viewportHeight);
+		backTexture.SetDimension(GlobalSettings.VIRTUAL_WIDTH,
+				GlobalSettings.VIRTUAL_HEIGHT);
 		titleTexture = new TextureWrapper(Assets.titleRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2+500));
@@ -111,6 +116,7 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 		
 		// Play Music
 		//WorldListner.startMusic();
+		fadeIn();
 	}
 
 
@@ -123,18 +129,91 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 	@Override
 	public void render() {
 		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+		//2. clear our depth buffer with 1.0
+		Gdx.gl.glClearDepthf(1f);
+		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 		
+		//3. set the function to LESS
+		Gdx.gl.glDepthFunc(GL20.GL_LESS);
+		
+		//4. enable depth writing
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		
+		//5. Enable depth writing, disable RGBA color writing 
+		Gdx.gl.glDepthMask(true);
+		Gdx.gl.glColorMask(false, false, false, false);
+		shapes .setProjectionMatrix(cam.combined);
+		shapes .begin(ShapeType.Filled);	 
+		shapes.setColor(0f, 1f, 0f, 0.5f);
+		shapes.rect(cam.position.x-(GlobalSettings.VIRTUAL_WIDTH/2), cam.position.y-(GlobalSettings.VIRTUAL_HEIGHT/2), GlobalSettings.VIRTUAL_WIDTH, GlobalSettings.VIRTUAL_HEIGHT);	
+		shapes.end();
+		///////////// Draw sprite(s) to be masked		
 		batch.begin();
+		//8. Enable RGBA color writing
+		//   (SpriteBatch.begin() will disable depth mask)
+		Gdx.gl.glColorMask(true, true, true, true);
+		
+		//9. Make sure testing is enabled.
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		
+		//10. Now depth discards pixels outside our masked shapes
+		Gdx.gl.glDepthFunc(GL20.GL_EQUAL);
 		batch.setProjectionMatrix(cam.combined);
 		batch.disableBlending();
 		backTexture.Draw(batch);
 		batch.enableBlending();
 		titleTexture.Draw(batch);
 		widgetPool.draw(batch);
+		if (whiteMask != null)
+			whiteMask.Draw(batch);
 		batch.end();
 		super.render();		
 	}
-
+	private void restart() {
+		whiteMask = new TextureWrapper(Assets.test, new Vector2(
+				GlobalSettings.VIRTUAL_WIDTH / 2,
+				GlobalSettings.VIRTUAL_HEIGHT / 2));
+		whiteMask.SetDimension(cam.viewportWidth, cam.viewportHeight);
+		TweenCallback callback = new TweenCallback() {
+			@SuppressWarnings("rawtypes")
+			@Override
+			public void onEvent(int type, BaseTween source) {
+				switch (type) {
+				case COMPLETE:
+					BackScreenID = Game. MENUSCREEN;
+					IsDone = true;
+					break;
+				}
+			}
+		};
+		Timeline.createSequence()
+				.setCallback(callback)
+				.setCallbackTriggers(TweenCallback.COMPLETE)
+				.start(Game.tweenManager);
+		WorldListner.restart();
+	}
+	private void fadeIn() {
+		whiteMask = new TextureWrapper(Assets.test, new Vector2(
+				GlobalSettings.VIRTUAL_WIDTH / 2,
+				GlobalSettings.VIRTUAL_HEIGHT / 2));
+		whiteMask.SetDimension(cam.viewportWidth, cam.viewportHeight);
+		TweenCallback callback = new TweenCallback() {
+			@SuppressWarnings("rawtypes")
+			@Override
+			public void onEvent(int type, BaseTween source) {
+				switch (type) {
+				case COMPLETE:
+					whiteMask = null;
+					break;
+				}
+			}
+		};
+		Timeline.createSequence()
+				.push(Tween.to(whiteMask, TextureAccessor.OPACITY, 0.5f)
+						.target(0).ease(Quart.INOUT)).setCallback(callback)
+				.setCallbackTriggers(TweenCallback.COMPLETE)
+				.start(Game.tweenManager);
+	}
 	@Override
 	public boolean isDone() {
 		return IsDone;
@@ -151,6 +230,10 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 			BackScreenID=Game.EXIT;
 			IsDone=true;
 			//System.exit(0);
+			return true;
+		}
+		if (keycode == Keys.R || keycode == Keys.MENU) {
+			restart();
 			return true;
 		}
 		return false;
