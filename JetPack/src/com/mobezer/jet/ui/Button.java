@@ -14,6 +14,7 @@ public class Button extends Widget {
 	public Button(TextureWrapper backTex, TextureWrapper clickTex, String text,
 			Vector2 pos) {
 		super(pos);
+		isTouchable =true;
 		BackTexture = backTex;
 		ClickedTexture = clickTex;
 		if(BackTexture!=null) BackTexture.setPosition(pos);
@@ -25,14 +26,21 @@ public class Button extends Widget {
 	@Override
 	public void Draw(SpriteBatch sp) {
 		if (!IsClicked) {
-			if (BackTexture != null)
+			if (BackTexture != null){
+				//BackTexture.setPosition(position);
 				BackTexture.Draw(sp);
+			}
+				
 		} else {
-			if (ClickedTexture != null)
+			if (ClickedTexture != null){
+				//ClickedTexture.setPosition(position);
 				ClickedTexture.Draw(sp);
+			}
 		}
-		if (Text != null)
+		if (Text != null){
+			//Text.Position.set(position);
 			Text.Draw(sp);
+		}
 	}
 	@Override
 	public void touch(float tapx, float tapy) {

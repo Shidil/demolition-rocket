@@ -26,7 +26,7 @@ public class TextureDimensions {
 	public static final float BOB_WIDTH=60;
 	
 	public static final float ENEMEY_HEIGHT = 52;
-	public static final float ENEMEY_WIDTH=80;
+	public static final float ENEMEY_WIDTH=96;
 	
 	public static final float CLOUD_WIDTH = 80;
 	public static final float CLOUD_HEIGHT = 45;

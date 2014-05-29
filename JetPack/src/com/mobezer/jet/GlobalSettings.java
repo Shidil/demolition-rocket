@@ -13,6 +13,7 @@ public class GlobalSettings {
 	public static final int POSITION_ITERATIONS=2;
 	protected static final String PREF_SOUND = "soundEnabled";
 	protected static final String PREF_TILT = "tiltSensitivity";
+	protected static final String PREF_SCORE = "highScore";
 	private static Preferences prefs;
 	public static void loadPrefs(){
 		prefs = Gdx.app.getPreferences("com.mobezer.jet.pref1");
@@ -38,6 +39,15 @@ public class GlobalSettings {
 		prefs.putBoolean(PREF_SOUND, !isSoundEnabled());
 		prefs.flush();
 		WorldListner.startMusic();
+		
+	}
+	public static int getHighScore(){
+		return prefs.getInteger(PREF_SCORE,0);
+		
+	}
+	public static void setHighScore(int score){
+		prefs.putInteger(PREF_SCORE,score);
+		prefs.flush();
 		
 	}
 	public static boolean isUnlocked(int levelId){

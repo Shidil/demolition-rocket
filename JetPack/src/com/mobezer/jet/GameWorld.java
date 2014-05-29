@@ -183,7 +183,7 @@ public class GameWorld {
 		camera.position.y = bob.position.y + 160f;
 		camera.update();
 		if(scoreTime>4){
-			Bob.SCORE = (int) heightSoFar/100;
+			Bob.SCORE = (int) heightSoFar/32;
 			scoreTime = 0;
 		}
 		scoreTime++;
@@ -358,8 +358,7 @@ public class GameWorld {
 			for(int i = 0;i<size;i++){
 				Enemey enemey = enemies.get(i);
 				if (Intersector.overlapConvexPolygons(bob.polyBounds, enemey.polyBounds)) {
-					bob.hitStorm();
-					
+					bob.hitStorm();					
 					WorldListner.hit();
 				}
 			}
@@ -378,8 +377,9 @@ public class GameWorld {
 			}
 	}
 	private void checkGameOver() {
-		// TODO Auto-generated method stub
-		
+		if(bob.state==Bob.BOB_STATE_HIT){
+			state = WORLD_STATE_GAME_OVER;
+		}
 	}
 
 

@@ -231,7 +231,7 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 		if (keycode == Keys.BACK || keycode == Keys.ESCAPE) {
 			BackScreenID=Game.EXIT;
 			IsDone=true;
-			//System.exit(0);
+			System.exit(0);
 			return true;
 		}
 		if (keycode == Keys.R || keycode == Keys.MENU) {

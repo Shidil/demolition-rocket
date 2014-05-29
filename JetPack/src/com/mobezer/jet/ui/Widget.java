@@ -4,13 +4,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public class Widget {
-	public Vector2 Position;
-	public Boolean IsClicked;
+	public Vector2 position;
+	public Boolean isTouchable,IsClicked;
 	private TouchListner onTapListner;
 	private UpdateListner onUpdateListner;
 
 	public Widget(Vector2 pos) {
-		Position = pos;
+		position = pos;
 		IsClicked = false;
 	}
 
