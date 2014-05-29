@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.mobezer.jet.Assets;
+import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
 
@@ -28,10 +29,13 @@ public class Enemey extends DynamicGameObject {
 	public float stateTime=0,runTime=0, sheildTime = 0, jumpPictureTime = 0;
 	public float[] vertices;
 	public Polygon polyBounds;
+	public int half=0;
 
 	public Enemey(float px, float py) {
 		super(px,py,ENEMEY_WIDTH,ENEMEY_HEIGHT);
 		Vector2 pos = new Vector2(px, py);
+		if(px>GameWorld.WORLD_WIDTH/2)
+			half=1;
 		texture = new TextureWrapper(Assets.cloud_storm, pos);
 		SetTextureDimension(ENEMEY_WIDTH, ENEMEY_HEIGHT);
 		vertices = new float[]{-26,23,-12,26,33,18,40,0,17,-13,-35,-7,-40,9};

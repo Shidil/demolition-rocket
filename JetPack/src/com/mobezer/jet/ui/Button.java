@@ -16,6 +16,8 @@ public class Button extends Widget {
 		super(pos);
 		BackTexture = backTex;
 		ClickedTexture = clickTex;
+		if(BackTexture!=null) BackTexture.setPosition(pos);
+		if(ClickedTexture!=null) BackTexture.setPosition(pos);
 		if(text!=null)
 			Text = new TextWrapper(text, Assets.Shemlock, pos);
 	}

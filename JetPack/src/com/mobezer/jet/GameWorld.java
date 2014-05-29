@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.mobezer.jet.objects.Bob;
+import com.mobezer.jet.objects.Coin;
 import com.mobezer.jet.objects.Enemey;
 
 public class GameWorld {
@@ -40,6 +41,7 @@ public class GameWorld {
 
 	// Lists
 	public ArrayList<Enemey> enemies;
+	public ArrayList<Coin> coins;
 	//public static ArrayList<Package> packages;
 	// Game Charaters and core objects
 	public Bob bob;
@@ -47,13 +49,14 @@ public class GameWorld {
 	public float heightSoFar;
 
 	// a list of points that define path of the heroBall
-	float stateTime,scoreTime=0;
+	float stateTime,scoreTime=0,delta = 1f;
 	private TextureWrapper backTexture;
 	private ShapeRenderer shapes = new ShapeRenderer();
 	public GameWorld(OrthographicCamera cam) {
 		GameWorld.camera = cam;
 		bob = new Bob(180, 80);
 		enemies = new ArrayList<Enemey>();
+		coins = new ArrayList<Coin>();
 		leveledSoFar = 400;
 		backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
@@ -69,11 +72,13 @@ public class GameWorld {
 	}
 
 	public void update(float delta) {
-		if (state == WORLD_STATE_RUNNING) {
+		if (state == WORLD_STATE_RUNNING) {		
+			delta*=this.delta;
 			stateTime+=delta;
 			updateLevel(delta);
 			updateBob(delta);
 			updateEnemy(delta);
+			updateCoins(delta);
 			updateClouds(delta);
 			heightSoFar = Math.max(bob.position.y, heightSoFar);
 			if (bob.state != Bob.BOB_STATE_HIT)
@@ -119,6 +124,7 @@ public class GameWorld {
 			}
 			Enemey ene = new Enemey(x, y);
 			enemies.add(ene);
+			addCoins(ene);
 			/*oneItem = false;
 			platforms.add(platform);
 			createMashrooms(platform);
@@ -132,11 +138,52 @@ public class GameWorld {
 		}
 		leveledSoFar = y;
 	}
+	@SuppressWarnings("unused")
+	private void addCoins(Enemey ene) {
+		float ran = random.nextFloat();
+		if(ran>0.75){
+			int off = (random.nextBoolean()==true)?1:-1;
+			off*=40;
+			float x = random.nextFloat()*(WORLD_WIDTH-60);
+			float y = ene.position.y+off;
+			Coin coin = new Coin(x, y);
+			coins.add(coin);
+		}
+		if(ran >= 0.6 && ran<=0.85){
+			int size = enemies.size();
+			boolean occuppied = false;
+			/*for(int i = 0;i<size;i++){
+				if(enemies.get(i).position.y<ene.position.y){
+					if(enemies.get(i).position.y<ene.position.y-120&&enemies.get(i).half==ene.half){
+						occuppied = true;
+					}
+				}
+			}*/
+			/*if(occuppied == false){
+				//float y = ene.position.y-30;
+				for(float y= (ene.position.y-30);y>ene.position.y-140;y-=20){
+					float x = ene.position.x;
+					Coin coin = new Coin(x, y);
+					coins.add(coin);
+				}
+			}*/
+		}
+		/*else if(ran>=0.85){
+			for(int i=0;i<360;i+=36){
+				float angle = i*MathUtils.degreesToRadians;
+				float x = ene.position.x+((Enemey.ENEMEY_WIDTH/2+15)*MathUtils.cos(angle));
+				float y = ene.position.y+((Enemey.ENEMEY_HEIGHT/2+10)*MathUtils.sin(angle));
+				Coin coin = new Coin(x, y);
+				coins.add(coin);
+			}
+		}*/
+	}
+
 	private void updateBob(float delta) {
 		camera.position.y = bob.position.y + 160f;
 		camera.update();
 		if(scoreTime>4){
-			Bob.SCORE += 1;
+			Bob.SCORE = (int) heightSoFar/100;
 			scoreTime = 0;
 		}
 		scoreTime++;
@@ -155,7 +202,18 @@ public class GameWorld {
 			item.Update(delta);
 		}
 	}
-
+	private void updateCoins(float delta) {
+		int size = coins.size();
+		for(int i = 0;i<size;i++){
+			Coin item = coins.get(i);
+			if(item.position.y<camera.position.y-500){
+				coins.remove(i);
+				size = coins.size();
+				continue;
+			}
+			item.Update(delta);
+		}
+	}
 	private void updateClouds(float delta) {
 		// TODO Auto-generated method stub
 		
@@ -214,6 +272,7 @@ public class GameWorld {
 		    }
 		}
 		bob.Draw(batch);
+		renderCoins(batch);
 		renderEnemy(batch);
 		renderClouds(batch);
 		//drawDebug(batch);
@@ -234,6 +293,12 @@ public class GameWorld {
 				Enemey enemey = enemies.get(i);
 				shapeRenderer.polygon(enemey.polyBounds.getTransformedVertices());
 			}
+		size = coins.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Coin enemey = coins.get(i);
+				shapeRenderer.polygon(enemey.polyBounds.getTransformedVertices());
+			}
 		shapeRenderer.end();
 		batch.begin();
 	}
@@ -247,6 +312,13 @@ public class GameWorld {
 		if(size>0)
 			for(int i = 0;i<size;i++){
 				enemies.get(i).Draw(batch);
+			}
+	}
+	private void renderCoins(SpriteBatch batch) {
+		int size = coins.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				coins.get(i).Draw(batch);
 			}
 	}
 
@@ -277,7 +349,7 @@ public class GameWorld {
 	}
 	private void checkCollisions() {
 		checkEnemeyCollisions();
-		
+		checkCoinCollisions();
 	}
 
 	private void checkEnemeyCollisions() {
@@ -287,11 +359,24 @@ public class GameWorld {
 				Enemey enemey = enemies.get(i);
 				if (Intersector.overlapConvexPolygons(bob.polyBounds, enemey.polyBounds)) {
 					bob.hitStorm();
+					
 					WorldListner.hit();
 				}
 			}
 	}
-
+	private void checkCoinCollisions() {
+		int size = coins.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Coin coin = coins.get(i);
+				if (Intersector.overlapConvexPolygons(bob.polyBounds, coin.polyBounds)) {
+					bob.hitCoin();
+					coins.remove(i);
+					size = coins.size();
+					WorldListner.coin();
+				}
+			}
+	}
 	private void checkGameOver() {
 		// TODO Auto-generated method stub
 		

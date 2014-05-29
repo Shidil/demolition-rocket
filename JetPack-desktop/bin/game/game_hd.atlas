@@ -3,51 +3,86 @@ game_hd.png
 format: RGBA8888
 filter: MipMap,Linear
 repeat: none
-sky
+box
   rotate: false
-  xy: 2, 218
-  size: 360, 640
-  orig: 360, 640
+  xy: 2, 478
+  size: 554, 538
+  orig: 554, 538
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 366, 532
+  xy: 2, 148
   size: 401, 326
   orig: 401, 326
   offset: 0, 0
   index: -1
-rocket
+settings
   rotate: false
-  xy: 2, 22
-  size: 120, 192
-  orig: 120, 192
+  xy: 2, 44
+  size: 477, 100
+  orig: 477, 100
   offset: 0, 0
   index: -1
 play
   rotate: false
-  xy: 366, 428
-  size: 200, 100
-  orig: 200, 100
+  xy: 560, 916
+  size: 288, 100
+  orig: 288, 100
+  offset: 0, 0
+  index: -1
+sound
+  rotate: false
+  xy: 560, 752
+  size: 159, 160
+  orig: 159, 160
+  offset: 0, 0
+  index: -1
+sound_disabled
+  rotate: false
+  xy: 560, 588
+  size: 159, 160
+  orig: 159, 160
+  offset: 0, 0
+  index: -1
+rocket
+  rotate: false
+  xy: 407, 282
+  size: 120, 192
+  orig: 120, 192
   offset: 0, 0
   index: -1
 cloud_storm
   rotate: false
-  xy: 771, 753
+  xy: 560, 479
   size: 160, 105
   orig: 160, 105
   offset: 0, 0
   index: -1
-particle
+coin
   rotate: false
   xy: 2, 2
+  size: 38, 38
+  orig: 38, 38
+  offset: 0, 0
+  index: -1
+sky
+  rotate: false
+  xy: 852, 985
+  size: 33, 31
+  orig: 33, 31
+  offset: 0, 0
+  index: -1
+particle
+  rotate: false
+  xy: 407, 262
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 white
   rotate: false
-  xy: 126, 213
+  xy: 531, 473
   size: 1, 1
   orig: 1, 1
   offset: 0, 0

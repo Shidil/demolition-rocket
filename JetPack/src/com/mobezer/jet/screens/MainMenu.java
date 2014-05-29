@@ -4,13 +4,12 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
-import aurelienribon.tweenengine.equations.Bounce;
+import aurelienribon.tweenengine.equations.Circ;
 import aurelienribon.tweenengine.equations.Quart;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -34,9 +33,9 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 	
 	TextureWrapper backTexture,titleTexture;
 	private WidgetPool widgetPool = new WidgetPool();
-	public Button Play;
+	public Button Play,Settings;
 	private OrthographicCamera cam;
-	private TextureWrapper playTexture;
+	private TextureWrapper playTexture,settingsTexture;
 	private ShapeRenderer shapes = new ShapeRenderer();
 	private TextureWrapper whiteMask;
 	
@@ -68,28 +67,11 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2+500));
 		titleTexture.SetDimension(TextureDimensions.TITLE_WIDTH, TextureDimensions.TITLE_HEIGHT);
-		playTexture=new TextureWrapper(Assets.playRegion,new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, -50));
+		playTexture=new TextureWrapper(Assets.playRegion,null);
 		playTexture.SetDimension(TextureDimensions.PLAY_WIDTH, TextureDimensions.PLAY_HEIGHT);
-		TextureWrapper playTexture1 = new TextureWrapper(Assets.playRegion,new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2));
-		playTexture1.SetDimension(TextureDimensions.PLAY_WIDTH, TextureDimensions.PLAY_HEIGHT);
-		playTexture1.SetColor(new Color(1,0,0,1f));
-		Timeline.createSequence()
-		.beginParallel()
-		.push(Tween
-				.to(titleTexture,
-						TextureAccessor.POS_XY, 0.8f)
-				.target(GlobalSettings.VIRTUAL_WIDTH / 2,
-						GlobalSettings.VIRTUAL_HEIGHT / 2+100)
-				.ease(Bounce.OUT))
-		.push(Tween
-				.to(playTexture,
-						TextureAccessor.POS_XY, 1f)
-				.target(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2)
-				.ease(Quart.OUT))
-		.end()
-		.setCallbackTriggers(TweenCallback.COMPLETE)
-		.start(Game.tweenManager);
-		Play=new Button(playTexture, playTexture1, null, new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2));
+		settingsTexture =new TextureWrapper(Assets.settingsRegion, null);
+		// Create ui widgets
+		Play=new Button(playTexture, playTexture, null, new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, 200));
 		Play.setOnTapListner(new TouchListner() {
 			@Override
 			public void tap() {
@@ -99,21 +81,41 @@ public class MainMenu extends BaseScreen implements InputProcessor{
 				dispose();
 			}
 		});	
-		/*final TextureWrapper soundTexture = new TextureWrapper(GlobalSettings.isSoundEnabled()?Assets.soundEnabled:Assets.soundDisabled,new Vector2(320, 120));
-		soundTexture.SetDimension(60, 40);
-		Button sound=new Button(soundTexture, soundTexture, null, new Vector2(360, 120));
-		sound.setOnTapListner(new TouchListner() {
+		Settings=new Button(settingsTexture, settingsTexture, null, new Vector2(GlobalSettings.VIRTUAL_WIDTH / 2, 200));
+		Settings.setOnTapListner(new TouchListner() {
 			@Override
 			public void tap() {
 				WorldListner.click();
-				GlobalSettings.toggleSound();
-				soundTexture.SetTexture(GlobalSettings.isSoundEnabled()?Assets.soundEnabled:Assets.soundDisabled,60,40);
+				BackScreenID=Game.SETTINGS_SCREEN;
+				IsDone = true;
+				dispose();
 			}
-		});
-		// Add widgets to pool
-		widgetPool.add(sound);	*/
-		widgetPool.add(Play);
+		});	
+		Timeline.createSequence()
+		.beginParallel()
+		.push(Tween
+				.to(titleTexture,
+						TextureAccessor.POS_XY, 0.8f)
+				.target(GlobalSettings.VIRTUAL_WIDTH / 2,
+						GlobalSettings.VIRTUAL_HEIGHT / 2+100)
+				.ease(Circ.OUT))
+		.push(Tween
+				.to(playTexture,
+						TextureAccessor.POS_XY, 1f)
+				.target(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2-40)
+				.ease(Quart.OUT))
+		.push(Tween
+				.to(settingsTexture,
+						TextureAccessor.POS_XY, 1f)
+				.target(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT/2-100)
+				.ease(Quart.OUT))
+		.end()
+		.setCallbackTriggers(TweenCallback.COMPLETE)
+		.start(Game.tweenManager);
 		
+		// Add widgets to pool
+		widgetPool.add(Settings);
+		widgetPool.add(Play);
 		// Play Music
 		//WorldListner.startMusic();
 		fadeIn();

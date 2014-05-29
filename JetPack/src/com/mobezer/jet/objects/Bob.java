@@ -2,9 +2,7 @@ package com.mobezer.jet.objects;
 
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.equations.Bounce;
-import aurelienribon.tweenengine.equations.Circ;
-import aurelienribon.tweenengine.equations.Linear;
+import aurelienribon.tweenengine.equations.Quad;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -27,8 +25,8 @@ public class Bob extends DynamicGameObject {
 	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
 	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public static float BOB_FLY_VELOCITY = 190;
-	public static float BOB_MAX_VELOCITY = 300;
+	public  float BOB_FLY_VELOCITY = 190;
+	public  float BOB_MAX_VELOCITY = 300;
 	public static float BOB_MOVE_VELOCITY = 550;
 	public static float BOB_ACCELERATION = 0.2f; // pixels/second/second
 	// score is a static property of the character :D
@@ -88,7 +86,7 @@ public class Bob extends DynamicGameObject {
 				angle = angle-90;
 				Timeline.createSequence()
 				.push(Tween.to(texture, TextureAccessor.ROTATION, 0.22f)
-						.target((int) angle).ease(Linear.INOUT))
+						.target((int) angle).ease(Quad.OUT))
 				.start(Game.tweenManager);
 				//texture.SetRotation((int) angle);
 				if(velocity.x>0){
@@ -173,5 +171,10 @@ public class Bob extends DynamicGameObject {
 		velocity.set(0,10);
 		state = BOB_STATE_HIT;
 		stateTime = 0;
+	}
+
+	public void hitCoin() {
+		// TODO Auto-generated method stub
+		
 	}
 }

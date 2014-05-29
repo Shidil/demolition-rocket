@@ -15,15 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 public class Assets {
 	public static AssetManager manager = new AssetManager();
 	public static Music menuMusic;
-	public static Sound clickSound,restart,bonus,explode,hit;
+	public static Sound clickSound,restart,bonus,explode,hit,money;
 	public static BitmapFont Shemlock;
 	public static TextButtonStyle buttonShemlock = new TextButtonStyle();
-	public static TextureRegion playRegion, backgroundRegion,titleRegion,
-					soundEnabled,soundDisabled;
+	public static TextureRegion playRegion, backgroundRegion,titleRegion,boxRegion,
+					soundEnabled,soundDisabled,settingsRegion;
 	public static TextureRegion test;
 	@SuppressWarnings("unused")
 	private static ShaderProgram fontShader;
-	public static TextureRegion jet,cloud,cloud_storm,enemey;
+	public static TextureRegion jet,cloud,cloud_storm,enemey,coin;
 
 	public static void Load() {
 	
@@ -50,6 +50,7 @@ public class Assets {
 		manager.load("sounds/bonus.ogg", Sound.class);
 		manager.load("sounds/explode.mp3", Sound.class);
 		manager.load("sounds/hit.wav", Sound.class);
+		manager.load("sounds/coin.wav", Sound.class);
 		LoadFont();
 
 	}
@@ -82,15 +83,18 @@ public class Assets {
 
 	public static void loadMenu() {
 		playRegion = Assets.getAtlas("game").findRegion("play");
+		settingsRegion = Assets.getAtlas("game").findRegion("settings");
 		backgroundRegion = Assets.getAtlas("game").findRegion("sky");
 		titleRegion = Assets.getAtlas("game").findRegion("logo");
-		/*soundDisabled = Assets.getAtlas("mainmenu").findRegion("sound_disabled");
-		soundEnabled = Assets.getAtlas("mainmenu").findRegion("sound_enabled");*/
+		boxRegion = Assets.getAtlas("game").findRegion("box");
+		soundDisabled = Assets.getAtlas("game").findRegion("sound_disabled");
+		soundEnabled = Assets.getAtlas("game").findRegion("sound");
 		test = Assets.getAtlas("game").findRegion("white");
 		jet = Assets.getAtlas("game").findRegion("rocket");
 		cloud = Assets.getAtlas("game").findRegion("cloud");
 		cloud_storm = Assets.getAtlas("game").findRegion("cloud_storm");
 		enemey = Assets.getAtlas("game").findRegion("enemey");
+		coin = Assets.getAtlas("game").findRegion("coin");
 		// Load Music
 		//gameMusic = manager.get("sounds/crystal_palace.ogg");
 		//gameMusic.setLooping(true);
@@ -101,6 +105,7 @@ public class Assets {
 		restart = manager.get("sounds/restart.wav");
 		bonus = manager.get("sounds/bonus.ogg");
 		hit = manager.get("sounds/hit.wav");
+		money =  manager.get("sounds/coin.wav");
 	}
 
 	public static void playSound(Sound sound) {
