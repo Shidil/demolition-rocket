@@ -57,10 +57,10 @@ public class SplashScreen extends BaseScreen {
 		.push(Tween.set(splashImage, TextureAccessor.SCALE_XY).target(6f, 6f))
 		//.pushPause(1f)
 		.beginParallel()
-			.push(Tween.to(splashImage, TextureAccessor.SCALE_XY, 0.6f).target(1,1).ease(Quart.OUT))
-			.push(Tween.to(splashImage, TextureAccessor.OPACITY, 0.5f).target(1).ease(Quart.INOUT))
+			.push(Tween.to(splashImage, TextureAccessor.SCALE_XY, 0.8f).target(1,1).ease(Quart.OUT))
+			.push(Tween.to(splashImage, TextureAccessor.OPACITY, 0.7f).target(1).ease(Quart.INOUT))
 		.end()
-		//.pushPause(1)
+		//.pushPause(1.3f)
 		.beginParallel()
 			.push(Tween.to(splashImage, TextureAccessor.SCALE_XY, 1.0f).target(10,10).ease(Quart.IN))
 			.push(Tween.to(splashImage, TextureAccessor.OPACITY, 0.5f).target(0).ease(Quart.INOUT))
@@ -88,6 +88,8 @@ public class SplashScreen extends BaseScreen {
 		if (Assets.manager.update()) {
 			// we are done loading, let's move to another screen!
 			if(animationFinished){
+				Assets.loadGame();
+				Assets.loadMenu();
 				Gdx.app.log(Game.LOG, "Animation Finished");
 				BackScreenID=Game.MENUSCREEN;
 				IsDone = true;
@@ -107,8 +109,6 @@ public class SplashScreen extends BaseScreen {
 
 	@Override
 	public void dispose() {
-		Assets.loadGame();
-		Assets.loadMenu();
 		atlas.dispose();
 		Game.tweenManager.killAll();
 		super.dispose();

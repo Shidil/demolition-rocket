@@ -1,36 +1,41 @@
 package com.mobezer.jet.objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.mobezer.jet.Assets;
-import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
 
-public class Cloud extends BaseBoxObject {
-	public static final int CLOUD_STATE_IDLE = 0;
-	public static final int CLOUD_STATE_MOVE = 1;
-	public static final float CLOUD_WIDTH = TextureDimensions.CLOUD_WIDTH;
-	public static final float CLOUD_HEIGHT = TextureDimensions.CLOUD_HEIGHT;	
+public class Cloud extends DynamicGameObject {
+	public static final int BOB_STATE_IDLE = -1;
+	public static final int BOB_STATE_FLY = 0;
+	public static final int BOB_STATE_FALL = 1;
+	public static final int BOB_STATE_HIT = 2;
+	public static final int BOB_STATE_SHEILD = 3;
+	public static final int BOB_STATE_MAGNET = 4;
+	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
+	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public static float CLOUD_MOVE_VELOCITY = 0.8f;
+	public static float BOB_FLY_VELOCITY = 30;
+	public static float BOB_MOVE_VELOCITY = 20;
+	public static float BOB_ACCELERATION = 0.4f; // pixels/second/second
+	// score is a static property of the character :D
+	public static int SCORE = 0;
 	public int state;
+	public int bonusState;
 	public TextureWrapper texture;
-	public float stateTime=0;
-	public Vector2 position;
+	public float stateTime=0,runTime=0, sheildTime = 0, jumpPictureTime = 0;
+	public float[] vertices;
+	public Polygon polyBounds;
 
 	public Cloud(float px, float py) {
-		super(GameWorld.boxManager.GetNewObjectIndex(), 2);
-		position = new Vector2(px, py);
-		texture = new TextureWrapper(Assets.cloud_storm, position);
-		SetTextureDimension(CLOUD_WIDTH, CLOUD_HEIGHT);
-		MakeBody(CLOUD_WIDTH, CLOUD_HEIGHT, 0,"cloud_storm" ,BodyType.KinematicBody, 10, 0, position, 0);
-		boxUserData.setName("cloud_storm");
-		boxUserData.setObj(this);
-		body.setUserData(boxUserData);
-		state = CLOUD_STATE_IDLE;
+		super(px,py,BOB_WIDTH,BOB_HEIGHT);
+		Vector2 pos = new Vector2(px, py);
+		texture = new TextureWrapper(Assets.jet, pos);
+		SetTextureDimension(BOB_WIDTH, BOB_HEIGHT);
+
+		state = BOB_STATE_IDLE;
 	}
 
 	public void SetTextureDimension(float width, float height) {
@@ -45,16 +50,18 @@ public class Cloud extends BaseBoxObject {
 	}
 
 	public void Update(float dt) {
-			super.Update(dt);
 			stateTime+=dt;
-			position.set(bodyWorldPosition);
+			runTime+=dt;
+			// give acceleration
+			if(runTime>1.0){
+				BOB_FLY_VELOCITY+=BOB_ACCELERATION;
+				runTime+=0;
+			}
 			texture.Position.set(position);
-			body.setTransform(body.getPosition(),texture.rotation*MathUtils.degreesToRadians);
+			// texture.rotation=GetBodyRotationInDegrees();
 	}
 	
-	public float GetBodyRotationInDegrees() {
-		return body.getAngle() * MathUtils.radiansToDegrees;
-	}
+
 
 	public void movLeft() {
 
@@ -71,18 +78,6 @@ public class Cloud extends BaseBoxObject {
 	}
 
 	public void catchPack(int package_TYPE) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void rotate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void move() {
 		// TODO Auto-generated method stub
 		
 	}

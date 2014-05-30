@@ -5,13 +5,20 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 
 public class CameraHelper {
 	
+	public static int physicalHeight;
+	public static float viewportWidth;
+	public static float viewportHeight;
+	public static int physicalWidth;
+	public static float aspect;
+	public static float camX,camY;
+
 	public static OrthographicCamera GetCamera(float virtualWidth,
 			float virtualHeight) {
-		float viewportWidth = virtualWidth;
-		float viewportHeight = virtualHeight;
-		float physicalWidth = Gdx.graphics.getWidth();
-		float physicalHeight = Gdx.graphics.getHeight();
-		float aspect = virtualWidth / virtualHeight;
+		viewportWidth = virtualWidth;
+		viewportHeight = virtualHeight;
+		physicalWidth = Gdx.graphics.getWidth();
+		physicalHeight = Gdx.graphics.getHeight();
+		aspect = virtualWidth / virtualHeight;
 		// This is to maintain the aspect ratio.
 		// If the virtual aspect ration does not match with the aspect ratio
 		// of the hardware screen then the viewport would scaled to
@@ -30,7 +37,11 @@ public class CameraHelper {
 		}
 		OrthographicCamera camera = new OrthographicCamera(viewportWidth,
 				viewportHeight);
-		camera.position.set(virtualWidth / 2, virtualHeight / 2, 0);
+		camX = virtualWidth / 2;
+		//camY = viewportHeight/2;
+		camY = virtualHeight/2;
+		camera.position.set(virtualWidth / 2, virtualHeight/2, 0);
+		//camera.position.set(virtualWidth / 2, viewportHeight/2, 0);
 		camera.update();
 		return camera;
 	}

@@ -30,4 +30,7 @@ public class WorldListner {
 	public static void explode() {
 		Assets.playSound(Assets.explode);
 	}
+	public static void coin() {
+		Assets.playSound(Assets.money);
+	}
 }

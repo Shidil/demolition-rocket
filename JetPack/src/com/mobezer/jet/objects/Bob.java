@@ -2,13 +2,13 @@ package com.mobezer.jet.objects;
 
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.equations.Circ;
+import aurelienribon.tweenengine.equations.Quad;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.mobezer.jet.Assets;
 import com.mobezer.jet.Game;
 import com.mobezer.jet.GameWorld;
@@ -16,7 +16,7 @@ import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
 import com.mobezer.tween.TextureAccessor;
 
-public class Bob extends BaseBoxObject {
+public class Bob extends DynamicGameObject {
 	public static final int BOB_STATE_IDLE = -1;
 	public static final int BOB_STATE_FLY = 0;
 	public static final int BOB_STATE_FALL = 1;
@@ -26,28 +26,30 @@ public class Bob extends BaseBoxObject {
 	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
 	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public static float BOB_FLY_VELOCITY = 1.5f;
-	public static float BOB_MAX_VELOCITY = 2f;
-	public static float BOB_MOVE_VELOCITY = 7;
-	public static float BOB_ACCELERATION = 0.001f; // pixels/second/second
+	public  float BOB_FLY_VELOCITY = 190;
+	public  float BOB_MAX_VELOCITY = 450;
+	public static float BOB_MOVE_VELOCITY = 550;
+	public static float BOB_ACCELERATION = 0.06f; // pixels/second/second
 	// score is a static property of the character :D
 	public static int SCORE = 0;
 	public int state;
 	public int bonusState,level=1;
 	public TextureWrapper texture;
 	public float stateTime=0,runTime=0, sheildTime = 0, jumpPictureTime = 0;
-	public Vector2 velocity = new Vector2();
-	public Vector2 position = new Vector2();
+	public Polygon polyBounds;
+	public float []vertices;
+
 	public Bob(float px, float py) {
-		super(GameWorld.boxManager.GetNewObjectIndex(), 1);
-		//super(px,py,BOB_WIDTH,BOB_HEIGHT);
-		position = new Vector2(px, py);
-		texture = new TextureWrapper(Assets.jet, position);
+		super(px,py,BOB_WIDTH,BOB_HEIGHT);
+		Vector2 pos = new Vector2(px, py);
+		texture = new TextureWrapper(Assets.jet, pos);
 		SetTextureDimension(BOB_WIDTH, BOB_HEIGHT);
-		MakeBody(BOB_WIDTH, BOB_HEIGHT, 0,"rocket" ,BodyType.DynamicBody, 10, 0, position, 0);
-		boxUserData.setName("bob");
-		boxUserData.setObj(this);
-		body.setUserData(boxUserData);
+		vertices = new float[]{0,41,11,26,20,-10,16,-22,0,-28,-15,-25,-18,-10,-11,23};
+		polyBounds = new Polygon();
+		polyBounds.setOrigin(0, 0);
+		polyBounds.setOrigin(px, py);
+		polyBounds.setPosition(px, py);
+		polyBounds.setVertices(vertices);
 		SCORE = 0;
 		state = BOB_STATE_FLY;
 	}
@@ -61,47 +63,51 @@ public class Bob extends BaseBoxObject {
 		
 			//Gdx.app.log("bob", "" + texture.Position);
 			texture.Draw(sp);
+			
 	}
 
 
 	public void Update(float dt) {
-			super.Update(dt);
 			stateTime+=dt;
 			runTime+=dt;
 			// give acceleration
 			if(state == BOB_STATE_FLY){
-				/*if(runTime>8){
+				if(runTime>1){
 					BOB_FLY_VELOCITY+=BOB_ACCELERATION;
 					if(BOB_FLY_VELOCITY>BOB_MAX_VELOCITY)
 						BOB_FLY_VELOCITY=BOB_MAX_VELOCITY;
 					
 					level++;
 				}
-				if(runTime>10){
+				if(runTime>3){
 					runTime=0;
-				}*/
+				}
 				velocity.y = BOB_FLY_VELOCITY;
 				double angle=MathUtils.radiansToDegrees*(Math.atan2(velocity.y, velocity.x));
 				angle = angle-90;
 				Timeline.createSequence()
-				.push(Tween.to(texture, TextureAccessor.ROTATION, 0.2f)
-						.target((int) angle).ease(Circ.OUT))
+				.push(Tween.to(texture, TextureAccessor.ROTATION, 0.18f)
+						.target((int) angle).ease(Quad.OUT))
 				.start(Game.tweenManager);
-				angle *= MathUtils.degreesToRadians;
-				/*if(velocity.x>0){
-					velocity.y = (float) (velocity.y+( angle/3));
-					if(velocity.y<0.2)
-						velocity.y = 0.2f;
+				//texture.SetRotation((int) angle);
+				if(velocity.x>0){
+					velocity.y = (float) (velocity.y+((int) angle+35));
+					if(velocity.y<120)
+						velocity.y = 120;
 				}
 				if(velocity.x<0){
-					velocity.y = (float) (velocity.y-( angle/3));
-					if(velocity.y<0.2)
-						velocity.y = 0.2f;
-				}*/
-				//Gdx.app.log("velocity", ""+(angle));
+					velocity.y = (float) (velocity.y-((int) angle-35));
+					if(velocity.y<120)
+						velocity.y = 120;
+				}
+				Gdx.app.log("velocity", ""+(velocity));
 			}
-			body.setLinearVelocity(velocity);
-			Polygon a =new Polygon();
+
+			velocity.add(GameWorld.gravity.x * dt, GameWorld.gravity.y * dt);
+			position.add(velocity.x * dt, velocity.y * dt);
+			//bounds.x = position.x - bounds.width / 2;
+			//bounds.y = position.y - bounds.height / 2;
+
 			if (velocity.y > 0 && state != BOB_STATE_HIT
 					&& state != BOB_STATE_MAGNET) {
 				if (state != BOB_STATE_FLY) {
@@ -115,11 +121,12 @@ public class Bob extends BaseBoxObject {
 					stateTime = 0;
 				}
 			}
-
-			/*if (position.x < 0)
-				position.x = GameWorld.WORLD_WIDTH;
-			if (position.x > GameWorld.WORLD_WIDTH)
-				position.x = 0;*/
+			// Restric Bob to go off the screen
+			if (position.x-(BOB_WIDTH/2-10) < 0)
+				position.x = BOB_WIDTH/2-10;
+			if (position.x+(BOB_WIDTH/2-10) > GameWorld.WORLD_WIDTH)
+				position.x = GameWorld.WORLD_WIDTH-(BOB_WIDTH/2-10);
+			
 			sheildTime += dt;
 			stateTime += dt;
 			jumpPictureTime+=dt;
@@ -129,15 +136,18 @@ public class Bob extends BaseBoxObject {
 				sheildTime=0;
 				bonusState=0;
 			}
-			position.set(bodyWorldPosition);
+			
 			texture.Position.set(position);
-			body.setTransform(body.getPosition(),texture.rotation*MathUtils.degreesToRadians);
+			polyBounds.setPosition(position.x, position.y);
+			polyBounds.setOrigin(0, 0);
+			polyBounds.dirty();
+			polyBounds.setRotation(texture.getRotation());
+			polyBounds.dirty();
+			//bounds.
+			// texture.rotation=GetBodyRotationInDegrees();
 	}
 	
 
-	public float GetBodyRotationInDegrees() {
-		return body.getAngle() * MathUtils.radiansToDegrees;
-	}
 
 	public void movLeft() {
 
@@ -159,19 +169,12 @@ public class Bob extends BaseBoxObject {
 	}
 
 	public void hitStorm() {
-		velocity.y = 0.1f;
+		velocity.set(0,10);
 		state = BOB_STATE_HIT;
 		stateTime = 0;
 	}
 
-	@Override
-	public void rotate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void move() {
+	public void hitCoin() {
 		// TODO Auto-generated method stub
 		
 	}

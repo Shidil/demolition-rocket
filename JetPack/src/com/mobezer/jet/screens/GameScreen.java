@@ -14,18 +14,21 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mobezer.jet.Assets;
+import com.mobezer.jet.CameraHelper;
 import com.mobezer.jet.Game;
 import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.GlobalSettings;
-import com.mobezer.jet.TextWrapper;
 import com.mobezer.jet.TextureWrapper;
 import com.mobezer.jet.WorldListner;
 import com.mobezer.jet.objects.Bob;
+import com.mobezer.jet.ui.Label;
+import com.mobezer.jet.ui.WidgetPool;
 import com.mobezer.tween.TextureAccessor;
 
 public class GameScreen extends BaseScreen implements InputProcessor,
@@ -39,16 +42,20 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	static int state;
 	Vector3 touchPoint = new Vector3(0, 0, 0);
 	// Variables
+	private WidgetPool widgetPool = new WidgetPool();
 	// ////////////////////////////////////////
 	int lastScore;
 	String scoreString="";
-	private OrthographicCamera cam;
+	private OrthographicCamera cam,guiCam;
 	GameWorld world;
 	TextureWrapper backTexture,whiteMask;
 	FPSLogger fps=new FPSLogger();
+	// Widgets
+	Label fpsLabel,scoreLabel;
 	public GameScreen(int screenId, OrthographicCamera cam) {
 		// Assets.loadGame();
 		this.cam = cam;
+		guiCam = CameraHelper.GetCamera(GlobalSettings.VIRTUAL_WIDTH , GlobalSettings.VIRTUAL_HEIGHT);
 		this.BackScreenID = screenId;
 		batch.setProjectionMatrix(cam.combined);
 		IsDone = false;
@@ -58,18 +65,26 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		// Gdx.input.setInputProcessor(this);
 		Gdx.input.setCatchBackKey(true);
 		world = new GameWorld(cam);
-		cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
+		//cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
+		cam.position.set(CameraHelper.camX, CameraHelper.camY, 0);
+		
 		Init();
+		Gdx.app.log("camera", "pos:"+cam.position+" width:"+cam.viewportWidth+"height:"+cam.viewportHeight);
 	}
 
 	private void Init() {
 		fadeIn();
+		widgetPool.setGuiCam(guiCam);
 		state = GAME_READY;
 		cam.update();
 		InputMultiplexer mux = new InputMultiplexer();
 		mux.addProcessor(this);
 		mux.addProcessor(new GestureDetector(0, 0, 0, 0.5f, this));
 		Gdx.input.setInputProcessor(mux);
+		fpsLabel = new Label("fps", Assets.Shemlock, new Vector2(50,470));
+		scoreLabel = new Label("score", Assets.Shemlock, new Vector2(260,470));
+		widgetPool.add(fpsLabel);
+		widgetPool.add(scoreLabel);
 	}
 
 	@Override
@@ -108,8 +123,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void updatePaused() {
-		// TODO code when game is paused ( pause menu)
-
+		if (Gdx.input.justTouched()) {
+			state = GAME_RUNNING;
+		}
 	}
 
 	private void updateRunning(float delta) {
@@ -119,7 +135,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		// Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)
 		if (appType == ApplicationType.Android
 				|| appType == ApplicationType.iOS) {
-			world.bobMove(delta, Gdx.input.getAccelerometerX() * 0.1f);
+			world.bobMove(delta, Gdx.input.getAccelerometerX() * 0.25f);
 		} else {
 			float accel = 0;
 			if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT))
@@ -131,11 +147,17 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		world.update(delta);
 		if (Bob.SCORE != lastScore) {
 			lastScore = Bob.SCORE;
-			scoreString = " " + lastScore;
+			scoreString = "Score " + lastScore;
 		}
 		if (world.state == GameWorld.WORLD_STATE_GAME_OVER) 
 			state = GAME_OVER;
 		
+	}
+
+	private void updateReady() {
+		if (Gdx.input.justTouched()) {
+			state = GAME_RUNNING;
+		}
 	}
 
 	private void fadeIn() {
@@ -162,7 +184,8 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void exit() {
-		cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
+		//cam.position.set(GlobalSettings.VIRTUAL_WIDTH / 2, GlobalSettings.VIRTUAL_HEIGHT / 2, 0);
+		cam.position.set(CameraHelper.camX, CameraHelper.camY, 0);
 		BackScreenID = Game.MENUSCREEN;
 		IsDone = true;
 	}
@@ -195,29 +218,26 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		
 	}
 
-	private void updateReady() {
-		if (Gdx.input.justTouched()) {
-			state = GAME_RUNNING;
-		}
-	}
-
 	@Override
 	public void render() {
 		cam.update();
 		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
+		Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(cam.combined);
 		batch.begin();
 		world.render(batch);
+		draw(batch);
 		if (whiteMask != null)
 			whiteMask.Draw(batch);
-		//TextWrapper fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(280,470));
-		TextWrapper fp = new TextWrapper("Score "+scoreString, Assets.Shemlock, new Vector2(260,cam.position.y+230));
-		fp.Draw(batch);
-		fp = new TextWrapper("fps "+Gdx.graphics.getFramesPerSecond(), Assets.Shemlock, new Vector2(50,cam.position.y+230));
-		fp.Draw(batch);
 		batch.end();
+	}
 
+	private void draw(SpriteBatch batch) {
+		scoreLabel.setText(scoreString);
+		fpsLabel.setText("fps "+Gdx.graphics.getFramesPerSecond());
+		widgetPool.draw(batch);
+		batch.setProjectionMatrix(cam.combined);
 	}
 
 	@Override
@@ -246,8 +266,10 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	@Override
 	public boolean keyDown(int keycode) {
 		if (keycode == Keys.BACK || keycode == Keys.ESCAPE) {
-			exit();
+			//exit();
+			state = GAME_PAUSED;
 			return true;
+			
 		}
 		if (keycode == Keys.R || keycode == Keys.MENU) {
 			restart();
@@ -279,6 +301,8 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
+		widgetPool.listenTouch(x, y);
+		Gdx.app.log("Touch", "x:" + x+" y:"+y);
 		UnProjectCamera(x, y, cam, Game.CAMSTARTX, Game.CAMSTARTY,
 				Game.CAMWIDTH, Game.CAMHEIGHT);
 		x = (int) TouchPoint.x;
@@ -289,7 +313,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		else{	// right half
 			world.bobRight();
 		}*/
-		Gdx.app.log("", "" + TouchPoint);
+		
 		return false;
 
 	};
@@ -302,7 +326,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
-		//world.bobStop();
+		widgetPool.listenTap(x, y);
 		return false;
 	}
 

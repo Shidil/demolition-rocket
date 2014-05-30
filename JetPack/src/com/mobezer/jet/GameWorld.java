@@ -3,28 +3,22 @@ package com.mobezer.jet;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.mobezer.jet.objects.BoxUserData;
-import com.mobezer.jet.BodyEditorLoader;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.utils.Array;
-import com.mobezer.jet.objects.BoxObjectManager;
 import com.mobezer.jet.objects.Bob;
-import com.mobezer.jet.objects.Cloud;
+import com.mobezer.jet.objects.Coin;
 import com.mobezer.jet.objects.Enemey;
 
 public class GameWorld {
@@ -40,42 +34,34 @@ public class GameWorld {
 	// particles
 	ParticleEffectPool smokeEffectPool;
 	Array<PooledEffect> effects = new Array<PooledEffect>();
-	// Physics
-	public static BoxObjectManager boxManager;	
-	public static BodyEditorLoader shapeLoader = new BodyEditorLoader(Gdx.files.internal("shapes/shape.json"));
+									
 	// Others
 	public static final Random random=new Random();
 	public int state;
 
 	// Lists
 	public ArrayList<Enemey> enemies;
-	public ArrayList<Cloud> clouds;
+	public ArrayList<Coin> coins;
 	//public static ArrayList<Package> packages;
 	// Game Charaters and core objects
 	public Bob bob;
 	public float leveledSoFar = 0;
 	public float heightSoFar;
-	Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-	Matrix4 debugMatrix;
+
 	// a list of points that define path of the heroBall
-	float stateTime,scoreTime=0;
+	float stateTime,scoreTime=0,delta = 1f;
 	private TextureWrapper backTexture;
+	private ShapeRenderer shapes = new ShapeRenderer();
 	public GameWorld(OrthographicCamera cam) {
 		GameWorld.camera = cam;
-		boxManager = new BoxObjectManager();
 		bob = new Bob(180, 80);
-		boxManager.AddObject(bob);
-		debugMatrix = new Matrix4(cam.combined.cpy());
-		debugMatrix.scale(BoxObjectManager.BOX_TO_WORLD,
-				BoxObjectManager.BOX_TO_WORLD, 1f);
-		createCollisionListener();
 		enemies = new ArrayList<Enemey>();
-		clouds = new ArrayList<Cloud>();
+		coins = new ArrayList<Coin>();
 		leveledSoFar = 400;
 		backTexture = new TextureWrapper(Assets.backgroundRegion, new Vector2(
 				GlobalSettings.VIRTUAL_WIDTH / 2,
 				GlobalSettings.VIRTUAL_HEIGHT / 2));
-		backTexture.SetDimension(cam.viewportWidth, cam.viewportHeight);
+		backTexture.SetDimension(GlobalSettings.VIRTUAL_WIDTH, GlobalSettings.VIRTUAL_HEIGHT);
 		ParticleEffect smokeEffect = new ParticleEffect();
 		smokeEffect.load(Gdx.files.internal("particles/smoke.p"), Assets.getAtlas("game"));
 		smokeEffectPool = new ParticleEffectPool(smokeEffect, 1, 1);
@@ -86,13 +72,14 @@ public class GameWorld {
 	}
 
 	public void update(float delta) {
-		if (state == WORLD_STATE_RUNNING) {
+		if (state == WORLD_STATE_RUNNING) {		
+			delta*=this.delta;
 			stateTime+=delta;
 			updateLevel(delta);
 			updateBob(delta);
 			updateEnemy(delta);
+			updateCoins(delta);
 			updateClouds(delta);
-			boxManager.Update(delta);
 			heightSoFar = Math.max(bob.position.y, heightSoFar);
 			if (bob.state != Bob.BOB_STATE_HIT)
 				checkCollisions();
@@ -105,14 +92,39 @@ public class GameWorld {
 		if(bob.position.y+1200<leveledSoFar)
 			return;
 		float y = leveledSoFar+20;
-		float diff=220;
+		int right = 0,left=0;
+		float diff=200;
+		float x;
 		while (y < leveledSoFar + WORLD_WIDTH * 2) {
-			float x = random.nextFloat()* (WORLD_WIDTH - Enemey.ENEMEY_WIDTH)
+			float off=20;
+			if(random.nextBoolean()==true){
+				off=-20+WORLD_WIDTH/2;
+			}
+			x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
 					+ Enemey.ENEMEY_WIDTH / 2;
-
-			Cloud cloud = new Cloud(x, y);
-			clouds.add(cloud);
-			boxManager.AddObject(cloud);
+			if(x>WORLD_WIDTH/2){ 
+				left = 0;
+				right++;
+			}
+			else{
+				right = 0;
+				left++;
+			}
+			if(right>=2){
+				right = 0;
+				off = 20;
+				x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
+						+ Enemey.ENEMEY_WIDTH / 2;
+			}
+			if(left>=2){
+				left = 0;
+				off=-20+WORLD_WIDTH/2;
+				x = off+random.nextFloat()* (WORLD_WIDTH/2 - Enemey.ENEMEY_WIDTH)
+						+ Enemey.ENEMEY_WIDTH / 2;
+			}
+			Enemey ene = new Enemey(x, y);
+			enemies.add(ene);
+			addCoins(ene);
 			/*oneItem = false;
 			platforms.add(platform);
 			createMashrooms(platform);
@@ -120,21 +132,62 @@ public class GameWorld {
 			createWings(platform);
 			createDiamonds(platform);
 			createEnemies(platform);*/
-
+	
 			y += (diff / 1.4f);
-			y += random.nextFloat() * .4;
+			y -= random.nextFloat() * 20;
 		}
 		leveledSoFar = y;
 	}
+	@SuppressWarnings("unused")
+	private void addCoins(Enemey ene) {
+		float ran = random.nextFloat();
+		if(ran>0.75){
+			int off = (random.nextBoolean()==true)?1:-1;
+			off*=40;
+			float x = random.nextFloat()*(WORLD_WIDTH-60);
+			float y = ene.position.y+off;
+			Coin coin = new Coin(x, y);
+			coins.add(coin);
+		}
+		if(ran >= 0.6 && ran<=0.85){
+			int size = enemies.size();
+			boolean occuppied = false;
+			/*for(int i = 0;i<size;i++){
+				if(enemies.get(i).position.y<ene.position.y){
+					if(enemies.get(i).position.y<ene.position.y-120&&enemies.get(i).half==ene.half){
+						occuppied = true;
+					}
+				}
+			}*/
+			/*if(occuppied == false){
+				//float y = ene.position.y-30;
+				for(float y= (ene.position.y-30);y>ene.position.y-140;y-=20){
+					float x = ene.position.x;
+					Coin coin = new Coin(x, y);
+					coins.add(coin);
+				}
+			}*/
+		}
+		/*else if(ran>=0.85){
+			for(int i=0;i<360;i+=36){
+				float angle = i*MathUtils.degreesToRadians;
+				float x = ene.position.x+((Enemey.ENEMEY_WIDTH/2+15)*MathUtils.cos(angle));
+				float y = ene.position.y+((Enemey.ENEMEY_HEIGHT/2+10)*MathUtils.sin(angle));
+				Coin coin = new Coin(x, y);
+				coins.add(coin);
+			}
+		}*/
+	}
+
 	private void updateBob(float delta) {
 		camera.position.y = bob.position.y + 160f;
 		camera.update();
 		if(scoreTime>4){
-			Bob.SCORE += 1;
+			Bob.SCORE = (int) heightSoFar/32;
 			scoreTime = 0;
 		}
 		scoreTime++;
-		//bob.Update(delta);
+		bob.Update(delta);
 	}
 
 	private void updateEnemy(float delta) {
@@ -149,18 +202,21 @@ public class GameWorld {
 			item.Update(delta);
 		}
 	}
-
-	private void updateClouds(float delta) {
-		int size = clouds.size();
+	private void updateCoins(float delta) {
+		int size = coins.size();
 		for(int i = 0;i<size;i++){
-			Cloud item = clouds.get(i);
+			Coin item = coins.get(i);
 			if(item.position.y<camera.position.y-500){
-				boxManager.removeObject(item);
-				clouds.remove(i);
-				size = clouds.size();
+				coins.remove(i);
+				size = coins.size();
 				continue;
 			}
+			item.Update(delta);
 		}
+	}
+	private void updateClouds(float delta) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public static OrthographicCamera getCamera() {
@@ -168,9 +224,42 @@ public class GameWorld {
 	}
 
 	public void render(SpriteBatch batch) {
+		batch.end();
+		//2. clear our depth buffer with 1.0
+		Gdx.gl.glClearDepthf(1f);
+		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
+		
+		//3. set the function to LESS
+		Gdx.gl.glDepthFunc(GL20.GL_LESS);
+		
+		//4. enable depth writing
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		
+		//5. Enable depth writing, disable RGBA color writing 
+		Gdx.gl.glDepthMask(true);
+		Gdx.gl.glColorMask(false, false, false, false);
+		shapes .setProjectionMatrix(camera.combined);
+		shapes.begin(ShapeType.Filled);	 
+		shapes.setColor(0f, 1f, 0f, 0.5f);
+		shapes.rect(camera.position.x-(GlobalSettings.VIRTUAL_WIDTH/2), camera.position.y-(GlobalSettings.VIRTUAL_HEIGHT/2), GlobalSettings.VIRTUAL_WIDTH, GlobalSettings.VIRTUAL_HEIGHT);	
+		shapes.end();
+		///////////// Draw sprite(s) to be masked
+		batch.begin();
+		//8. Enable RGBA color writing
+		//   (SpriteBatch.begin() will disable depth mask)
+		Gdx.gl.glColorMask(true, true, true, true);
+		
+		//9. Make sure testing is enabled.
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		
+		//10. Now depth discards pixels outside our masked shapes
+		Gdx.gl.glDepthFunc(GL20.GL_EQUAL);
 		backTexture.setPosition(camera.position.x,camera.position.y);
 		batch.disableBlending();
 		backTexture.Draw(batch);
+
+		
+		
 		batch.enableBlending();
 		// Update and draw effects:
 		for (int i = effects.size - 1; i >= 0; i--) {
@@ -182,29 +271,42 @@ public class GameWorld {
 		        effects.removeIndex(i);
 		    }
 		}
-		boxManager.Draw(batch);
-		//bob.Draw(batch);
-		//renderEnemy(batch);
-		//renderClouds(batch);
+		bob.Draw(batch);
+		renderCoins(batch);
+		renderEnemy(batch);
+		renderClouds(batch);
 		//drawDebug(batch);
 	}
 
 	
-	public void drawDebug(SpriteBatch batch) {
-		batch.disableBlending();
-		debugMatrix = new Matrix4(camera.combined.cpy());
-		debugMatrix.scale(BoxObjectManager.BOX_TO_WORLD,
-				BoxObjectManager.BOX_TO_WORLD, 1f);
-		debugRenderer.render(BoxObjectManager.GetWorld(), debugMatrix);
-		batch.enableBlending();
+	@SuppressWarnings("unused")
+	private void drawDebug(SpriteBatch batch) {
+		batch.end();
+		ShapeRenderer shapeRenderer = new ShapeRenderer();
+		shapeRenderer .setProjectionMatrix(camera.combined);
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(Color.RED);
+		shapeRenderer.polygon(bob.polyBounds.getTransformedVertices());
+		int size = enemies.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Enemey enemey = enemies.get(i);
+				shapeRenderer.polygon(enemey.polyBounds.getTransformedVertices());
+			}
+		size = coins.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Coin enemey = coins.get(i);
+				shapeRenderer.polygon(enemey.polyBounds.getTransformedVertices());
+			}
+		shapeRenderer.end();
+		batch.begin();
 	}
 
-	@SuppressWarnings("unused")
 	private void renderClouds(SpriteBatch batch) {
 
 	}
 
-	@SuppressWarnings("unused")
 	private void renderEnemy(SpriteBatch batch) {
 		int size = enemies.size();
 		if(size>0)
@@ -212,9 +314,15 @@ public class GameWorld {
 				enemies.get(i).Draw(batch);
 			}
 	}
+	private void renderCoins(SpriteBatch batch) {
+		int size = coins.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				coins.get(i).Draw(batch);
+			}
+	}
 
 	public void dispose() {
-		boxManager.Dispose();
 		for (int i = effects.size - 1; i >= 0; i--)
 		    effects.get(i).free();
 		effects.clear();
@@ -239,62 +347,39 @@ public class GameWorld {
 			
 
 	}
-	private void createCollisionListener() {
-		BoxObjectManager.GetWorld().setContactListener(new ContactListener() {
-
-			@Override
-			public void beginContact(Contact contact) {
-			}
-
-			@Override
-			public void endContact(Contact contact) {
-			}
-
-			@Override
-			public void preSolve(Contact contact, Manifold oldManifold) {
-				contact.setEnabled(false);
-				Fixture fixtureA = contact.getFixtureA();
-				Fixture fixtureB = contact.getFixtureB();
-				BoxUserData itemA =  ((BoxUserData) fixtureA.getBody().getUserData());
-				BoxUserData itemB = ((BoxUserData) fixtureB.getBody().getUserData());
-				Gdx.app.log("Contact", "between " + itemA.name + " and " + itemB.name);
-				// bob catches package
-				if((itemA.name=="bob"&&itemB.name=="cloud_storm")){
-					((Bob) itemA.obj).hitStorm();
-				}
-				if(itemA.name=="cloud_storm"&&itemB.name=="bob"){	
-					((Bob) itemB.obj).hitStorm();
-				}
-			}
-
-			@Override
-			public void postSolve(Contact contact, ContactImpulse impulse) {
-				// TODO Auto-generated method stub
-				
-			}
-
-		});
-	}
 	private void checkCollisions() {
-		//checkEnemeyCollisions();
-		
+		checkEnemeyCollisions();
+		checkCoinCollisions();
 	}
 
-	/*private void checkEnemeyCollisions() {
+	private void checkEnemeyCollisions() {
 		int size = enemies.size();
 		if(size>0)
 			for(int i = 0;i<size;i++){
 				Enemey enemey = enemies.get(i);
-				if (OverlapTester.overlapRectangles(bob.bounds, enemey.bounds)) {
-					bob.hitStorm();
+				if (Intersector.overlapConvexPolygons(bob.polyBounds, enemey.polyBounds)) {
+					bob.hitStorm();					
 					WorldListner.hit();
 				}
 			}
-	}*/
-
+	}
+	private void checkCoinCollisions() {
+		int size = coins.size();
+		if(size>0)
+			for(int i = 0;i<size;i++){
+				Coin coin = coins.get(i);
+				if (Intersector.overlapConvexPolygons(bob.polyBounds, coin.polyBounds)) {
+					bob.hitCoin();
+					coins.remove(i);
+					size = coins.size();
+					WorldListner.coin();
+				}
+			}
+	}
 	private void checkGameOver() {
-		// TODO Auto-generated method stub
-		
+		if(bob.state==Bob.BOB_STATE_HIT){
+			state = WORLD_STATE_GAME_OVER;
+		}
 	}
 
 

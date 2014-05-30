@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mobezer.jet.screens.BaseScreen;
 import com.mobezer.jet.screens.GameScreen;
 import com.mobezer.jet.screens.MainMenu;
+import com.mobezer.jet.screens.SettingsScreen;
 import com.mobezer.jet.screens.SplashScreen;
 import com.mobezer.tween.ActorAccessor;
 import com.mobezer.tween.TextureAccessor;
@@ -43,6 +44,7 @@ public class Game implements ApplicationListener {
 	public static final int GAMESCREEN = 2;
 	public static final int MENUSCREEN = 3;
 	public static final int SPLASHSCREEN = 4;
+	public static final int SETTINGS_SCREEN = 5;
 
 
 	@Override
@@ -149,6 +151,10 @@ public class Game implements ApplicationListener {
 				_currentScreen = new GameScreen(MENUSCREEN, _camera);
 				return;
 			}
+			if (previousScreenID == SETTINGS_SCREEN) {
+				_currentScreen = new SettingsScreen(MENUSCREEN, _camera);
+				return;
+			}
 		}
 
 	}
@@ -160,11 +166,12 @@ public class Game implements ApplicationListener {
 
 	@Override
 	public void resize(int width, int height) {
-		/*_camera = CameraHelper.GetCamera(GlobalSettings.VIRTUAL_WIDTH,
+		_camera = CameraHelper.GetCamera(GlobalSettings.VIRTUAL_WIDTH,
 				GlobalSettings.VIRTUAL_HEIGHT);
 		SetupZoom();
-		_camera.update();*/
+		_camera.update();
 		Gdx.app.log(Game.LOG, "Resizing game to: " + width + " x " + height);
+		Gdx.app.log("Camera", "startx: " + CAMSTARTX + " starty " + CAMSTARTY+"width: " + CAMWIDTH + " height " + CAMHEIGHT);
 
 	}
 

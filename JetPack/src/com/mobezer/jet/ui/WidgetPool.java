@@ -37,6 +37,7 @@ public class WidgetPool {
 		}
 	}
 	public void draw(SpriteBatch batch) {
+		batch.setProjectionMatrix(guiCam.combined);
 		Iterator<Entry<Integer, Widget>> it = itemPool.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Integer, Widget> item=(Entry<Integer, Widget>) it.next();
@@ -65,7 +66,8 @@ public class WidgetPool {
 		while (it.hasNext()) {
 			//System.out.println("touch");
 			Map.Entry<Integer, Widget> item=(Entry<Integer, Widget>) it.next();
-				item.getValue().touch(touchPoint.x, touchPoint.y);
+				if(item.getValue().isTouchable)
+					item.getValue().touch(touchPoint.x, touchPoint.y);
 			}
 			//it.remove();
 		}

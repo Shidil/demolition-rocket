@@ -1,8 +1,10 @@
 package com.mobezer.jet.objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.mobezer.jet.Assets;
+import com.mobezer.jet.GameWorld;
 import com.mobezer.jet.TextureDimensions;
 import com.mobezer.jet.TextureWrapper;
 
@@ -25,13 +27,22 @@ public class Enemey extends DynamicGameObject {
 	public int bonusState;
 	public TextureWrapper texture;
 	public float stateTime=0,runTime=0, sheildTime = 0, jumpPictureTime = 0;
+	public float[] vertices;
+	public Polygon polyBounds;
+	public int half=0;
 
 	public Enemey(float px, float py) {
 		super(px,py,ENEMEY_WIDTH,ENEMEY_HEIGHT);
 		Vector2 pos = new Vector2(px, py);
+		if(px>GameWorld.WORLD_WIDTH/2)
+			half=1;
 		texture = new TextureWrapper(Assets.cloud_storm, pos);
 		SetTextureDimension(ENEMEY_WIDTH, ENEMEY_HEIGHT);
-		SCORE = 0;
+		vertices = new float[]{-26,23,-12,26,33,18,40,0,17,-13,-35,-7,-40,9};
+		polyBounds = new Polygon();
+		polyBounds.setPosition(px, py);
+		polyBounds.setOrigin(0, 0);
+		polyBounds.setVertices(vertices);
 		state = ENEMEY_STATE_IDLE;
 	}
 
@@ -55,6 +66,11 @@ public class Enemey extends DynamicGameObject {
 				runTime+=0;
 			}
 			texture.Position.set(position);
+			polyBounds.setPosition(position.x, position.y);
+			polyBounds.setOrigin(0, 0);
+			polyBounds.dirty();
+			polyBounds.setRotation(texture.getRotation());
+			polyBounds.dirty();
 			// texture.rotation=GetBodyRotationInDegrees();
 	}
 	
