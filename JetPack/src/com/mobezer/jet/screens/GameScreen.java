@@ -230,7 +230,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		draw(batch);
 		if (whiteMask != null)
 			whiteMask.Draw(batch);
+		//Gdx.app.log("Rendercalls",""+ batch.renderCalls);
 		batch.end();
+		
 	}
 
 	private void draw(SpriteBatch batch) {
@@ -307,6 +309,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 				Game.CAMWIDTH, Game.CAMHEIGHT);
 		x = (int) TouchPoint.x;
 		y = (int) TouchPoint.y;
+		world.touchDown();
 		/*if(x<Game.CAMWIDTH/2){ // touch left half,move bob left
 			world.bobLeft();
 		}
@@ -327,6 +330,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
 		widgetPool.listenTap(x, y);
+		world.touchUp();
 		return false;
 	}
 
