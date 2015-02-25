@@ -13,8 +13,8 @@ public class TextureDimensions {
 	public static final int SETTINGS_WIDTH=238;
 	public static final int SETTINGS_HEIGHT=50;
 	
-	public static final int TITLE_WIDTH=200;
-	public static final int TITLE_HEIGHT=163;
+	public static final int TITLE_WIDTH=301;
+	public static final int TITLE_HEIGHT=202;
 	
 	public static final int BOX_WIDTH=277;
 	public static final int BOX_HEIGHT=269;

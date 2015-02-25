@@ -19,7 +19,7 @@ public class Label extends Widget {
 	}
 	@Override
 	public void Draw(SpriteBatch sp) {
-		if (Text != null){
+		if (Text != null&&isEnabled()){
 			//Text.Position.set(position);
 			Text.Draw(sp);
 		}

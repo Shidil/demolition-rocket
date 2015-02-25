@@ -51,7 +51,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	TextureWrapper backTexture,whiteMask;
 	FPSLogger fps=new FPSLogger();
 	// Widgets
-	Label bestLabel,scoreLabel;
+	Label bestLabel,scoreLabel,touchToContinue;
 	public GameScreen(int screenId, OrthographicCamera cam) {
 		// Assets.loadGame();
 		this.cam = cam;
@@ -84,8 +84,10 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		Gdx.input.setInputProcessor(mux);
 		bestLabel = new Label("Best", Assets.Shemlock, new Vector2(50,470));
 		scoreLabel = new Label("Score", Assets.Shemlock, new Vector2(260,470));
+		touchToContinue = new Label("Touch to start", Assets.Shemlock, new Vector2(160, 240));
 		widgetPool.add(bestLabel);
 		widgetPool.add(scoreLabel);
+		widgetPool.add(touchToContinue);
 		/// Game Over Screen buttons and Images
 	}
 
@@ -129,6 +131,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	private void updatePaused() {
 		if (Gdx.input.justTouched()) {
 			state = GAME_RUNNING;
+			
 		}
 	}
 
@@ -164,6 +167,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	private void updateReady() {
 		if (Gdx.input.justTouched()) {
 			state = GAME_RUNNING;
+			touchToContinue.setEnabled(false);
+			widgetPool.remove(touchToContinue);
+			touchToContinue.setText("");
 		}
 	}
 
