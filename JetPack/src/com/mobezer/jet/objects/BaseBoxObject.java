@@ -64,7 +64,7 @@ public abstract class BaseBoxObject implements ObjectModifier{
 	 		fixtureDef.friction=0.07f;
 	 		fixtureDef.restitution=restitution;
 	 		//fixtureDef.shape=bodyShape;
-	 		GameWorld.shapeLoader.attachFixture(body, shape, fixtureDef, w);
+	 		//GameWorld.shapeLoader.attachFixture(body, shape, fixtureDef, w);
 	 		body.createFixture(fixtureDef);
 			//bodyShape.dispose();
 		}
