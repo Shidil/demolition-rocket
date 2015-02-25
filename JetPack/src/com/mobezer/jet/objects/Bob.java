@@ -26,10 +26,10 @@ public class Bob extends DynamicGameObject {
 	public static final float BOB_WIDTH = TextureDimensions.BOB_WIDTH;
 	public static final float BOB_HEIGHT = TextureDimensions.BOB_HEIGHT;	
 	// Define movement variables
-	public  float BOB_FLY_VELOCITY = 190;
+	public  float BOB_FLY_VELOCITY = 200;
 	public  float BOB_MAX_VELOCITY = 450;
 	public static float BOB_MOVE_VELOCITY = 550;
-	public static float BOB_ACCELERATION = 0.06f; // pixels/second/second
+	public static float BOB_ACCELERATION = 2f; // pixels/second/second
 	// score is a static property of the character :D
 	public static int SCORE = 0;
 	public int state;
@@ -72,17 +72,19 @@ public class Bob extends DynamicGameObject {
 			runTime+=dt;
 			// give acceleration
 			if(state == BOB_STATE_FLY){
-				if(runTime>1){
-					BOB_FLY_VELOCITY+=BOB_ACCELERATION;
+				if(runTime>0.6){
+					BOB_FLY_VELOCITY+=BOB_ACCELERATION*dt;
+					BOB_ACCELERATION+=0.005;
 					if(BOB_FLY_VELOCITY>BOB_MAX_VELOCITY)
 						BOB_FLY_VELOCITY=BOB_MAX_VELOCITY;
 					
 					level++;
 				}
-				if(runTime>3){
+				/*if(runTime>2){
 					runTime=0;
-				}
-				velocity.y = BOB_FLY_VELOCITY;
+				}*/
+				if(GameWorld.touchstate==1)
+					velocity.y = BOB_FLY_VELOCITY;
 				double angle=MathUtils.radiansToDegrees*(Math.atan2(velocity.y, velocity.x));
 				angle = angle-90;
 				Timeline.createSequence()
@@ -90,37 +92,40 @@ public class Bob extends DynamicGameObject {
 						.target((int) angle).ease(Quad.OUT))
 				.start(Game.tweenManager);
 				//texture.SetRotation((int) angle);
-				if(velocity.x>0){
-					velocity.y = (float) (velocity.y+((int) angle+35));
-					if(velocity.y<120)
-						velocity.y = 120;
+				if(GameWorld.touchstate==1){
+					if(velocity.x>0){
+						velocity.y = (float) (velocity.y+((int) angle/6));
+						if(velocity.y<190)
+							velocity.y = 190;
+					}
+					if(velocity.x<0){
+						velocity.y = (float) (velocity.y-((int) angle/6));
+						if(velocity.y<190)
+							velocity.y = 190;
+					}
 				}
-				if(velocity.x<0){
-					velocity.y = (float) (velocity.y-((int) angle-35));
-					if(velocity.y<120)
-						velocity.y = 120;
-				}
-				Gdx.app.log("velocity", ""+(velocity));
+				
 			}
-
-			velocity.add(GameWorld.gravity.x * dt, GameWorld.gravity.y * dt);
+			//Gdx.app.log("velocity", ""+(velocity));
+			if(GameWorld.touchstate==0||state == BOB_STATE_HIT)
+				velocity.add(GameWorld.gravity.x * dt, GameWorld.gravity.y * dt);
 			position.add(velocity.x * dt, velocity.y * dt);
 			//bounds.x = position.x - bounds.width / 2;
 			//bounds.y = position.y - bounds.height / 2;
-
-			if (velocity.y > 0 && state != BOB_STATE_HIT
-					&& state != BOB_STATE_MAGNET) {
-				if (state != BOB_STATE_FLY) {
-					state = BOB_STATE_FLY;
-					stateTime = 0;
+			
+				/*if (velocity.y > 0 && state != BOB_STATE_HIT) {
+					if (state != BOB_STATE_FLY) {
+						state = BOB_STATE_FLY;
+						stateTime = 0;
+					}
 				}
-			}
-			if (velocity.y < 0 && state != BOB_STATE_HIT) {
-				if (state != BOB_STATE_FALL) {
-					state = BOB_STATE_FALL;
-					stateTime = 0;
+				if (velocity.y < 0 && state != BOB_STATE_HIT) {
+					if (state != BOB_STATE_FALL) {
+						state = BOB_STATE_FALL;
+						stateTime = 0;
+					}
 				}
-			}
+			*/
 			// Restric Bob to go off the screen
 			if (position.x-(BOB_WIDTH/2-10) < 0)
 				position.x = BOB_WIDTH/2-10;
@@ -169,7 +174,7 @@ public class Bob extends DynamicGameObject {
 	}
 
 	public void hitStorm() {
-		velocity.set(0,10);
+		velocity.set(0,0);
 		state = BOB_STATE_HIT;
 		stateTime = 0;
 	}

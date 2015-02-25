@@ -29,8 +29,9 @@ public class GameWorld {
 	public static final int GAME_UNIT = 48;
 	public static final int WORLD_WIDTH = GlobalSettings.VIRTUAL_WIDTH;
 	public static final int WORLD_HEIGHT = GlobalSettings.VIRTUAL_HEIGHT;
-	public static final Vector2 gravity = new Vector2(0, 0);
+	public static final Vector2 gravity = new Vector2(0, -100);
 	public static OrthographicCamera camera; // camera to obtain projection
+	public static int touchstate=0;
 	// particles
 	ParticleEffectPool smokeEffectPool;
 	Array<PooledEffect> effects = new Array<PooledEffect>();
@@ -89,7 +90,7 @@ public class GameWorld {
 
 
 	private void updateLevel(float delta){
-		if(bob.position.y+1200<leveledSoFar)
+		if(bob.position.y+600<leveledSoFar)
 			return;
 		float y = leveledSoFar+20;
 		int right = 0,left=0;
@@ -124,7 +125,7 @@ public class GameWorld {
 			}
 			Enemey ene = new Enemey(x, y);
 			enemies.add(ene);
-			addCoins(ene);
+			//addCoins(ene);
 			/*oneItem = false;
 			platforms.add(platform);
 			createMashrooms(platform);
@@ -180,7 +181,8 @@ public class GameWorld {
 	}
 
 	private void updateBob(float delta) {
-		camera.position.y = bob.position.y + 160f;
+		if(bob.state==Bob.BOB_STATE_FLY)
+			camera.position.y = bob.position.y + 160f;
 		camera.update();
 		if(scoreTime>4){
 			Bob.SCORE = (int) heightSoFar/32;
@@ -201,6 +203,7 @@ public class GameWorld {
 			}
 			item.Update(delta);
 		}
+		System.out.println("Clouds = "+size);
 	}
 	private void updateCoins(float delta) {
 		int size = coins.size();
@@ -261,6 +264,7 @@ public class GameWorld {
 		
 		
 		batch.enableBlending();
+		//batch.setColor(Color.GRAY);
 		// Update and draw effects:
 		for (int i = effects.size - 1; i >= 0; i--) {
 		    PooledEffect effect = effects.get(i);
@@ -271,6 +275,7 @@ public class GameWorld {
 		        effects.removeIndex(i);
 		    }
 		}
+		//batch.setColor(Color.WHITE);
 		bob.Draw(batch);
 		renderCoins(batch);
 		renderEnemy(batch);
@@ -333,7 +338,7 @@ public class GameWorld {
 	}
 
 	public void bobMove(float delta, float accel) {	
-		if (bob.state != Bob.BOB_STATE_HIT){
+		if (bob.state == Bob.BOB_STATE_FLY){
 			ApplicationType appType = Gdx.app.getType();
 			// should work also with
 			// Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)
@@ -377,8 +382,23 @@ public class GameWorld {
 			}
 	}
 	private void checkGameOver() {
-		if(bob.state==Bob.BOB_STATE_HIT){
+		if(bob.state==Bob.BOB_STATE_HIT&&bob.position.y<camera.position.y-240){
 			state = WORLD_STATE_GAME_OVER;
+		}
+	}
+
+	public void touchDown() {
+		if(bob.state!=Bob.BOB_STATE_HIT){
+			Gdx.app.log("Touch"," accelerate");
+			GameWorld.touchstate = 1;
+		}
+	}
+
+	public void touchUp() {
+		if(bob.state!=Bob.BOB_STATE_HIT){
+			Gdx.app.log("Touch"," decelerate");
+			//GameWorld.touchstate = 0;
+		//	bob.state = Bob.BOB_STATE_FALL;
 		}
 	}
 
