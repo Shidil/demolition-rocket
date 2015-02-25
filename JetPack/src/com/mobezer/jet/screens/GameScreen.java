@@ -44,14 +44,14 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	// Variables
 	private WidgetPool widgetPool = new WidgetPool();
 	// ////////////////////////////////////////
-	int lastScore;
-	String scoreString="";
+	int lastScore,bestScore;
+	String scoreString="",bestString="";
 	private OrthographicCamera cam,guiCam;
 	GameWorld world;
 	TextureWrapper backTexture,whiteMask;
 	FPSLogger fps=new FPSLogger();
 	// Widgets
-	Label fpsLabel,scoreLabel;
+	Label bestLabel,scoreLabel;
 	public GameScreen(int screenId, OrthographicCamera cam) {
 		// Assets.loadGame();
 		this.cam = cam;
@@ -73,6 +73,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void Init() {
+		bestScore=GlobalSettings.getHighScore();
 		fadeIn();
 		widgetPool.setGuiCam(guiCam);
 		state = GAME_READY;
@@ -81,10 +82,11 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		mux.addProcessor(this);
 		mux.addProcessor(new GestureDetector(0, 0, 0, 0.5f, this));
 		Gdx.input.setInputProcessor(mux);
-		fpsLabel = new Label("fps", Assets.Shemlock, new Vector2(50,470));
-		scoreLabel = new Label("score", Assets.Shemlock, new Vector2(260,470));
-		widgetPool.add(fpsLabel);
+		bestLabel = new Label("Best", Assets.Shemlock, new Vector2(50,470));
+		scoreLabel = new Label("Score", Assets.Shemlock, new Vector2(260,470));
+		widgetPool.add(bestLabel);
 		widgetPool.add(scoreLabel);
+		/// Game Over Screen buttons and Images
 	}
 
 	@Override
@@ -117,6 +119,8 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 	}
 
 	private void updateGameOver() {
+		if(bestScore>GlobalSettings.getHighScore())
+			GlobalSettings.setHighScore(bestScore);
 		if (Gdx.input.justTouched()) {
 			exit();
 		}
@@ -149,6 +153,9 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 			lastScore = Bob.SCORE;
 			scoreString = "Score " + lastScore;
 		}
+		if(lastScore>bestScore)
+			bestScore = lastScore;
+		bestString = "Best " + bestScore;
 		if (world.state == GameWorld.WORLD_STATE_GAME_OVER) 
 			state = GAME_OVER;
 		
@@ -237,7 +244,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 
 	private void draw(SpriteBatch batch) {
 		scoreLabel.setText(scoreString);
-		fpsLabel.setText("fps "+Gdx.graphics.getFramesPerSecond());
+		bestLabel.setText(bestString);
 		widgetPool.draw(batch);
 		batch.setProjectionMatrix(cam.combined);
 	}
