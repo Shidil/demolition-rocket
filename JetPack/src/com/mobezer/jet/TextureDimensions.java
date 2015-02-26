@@ -1,8 +1,8 @@
 package com.mobezer.jet;
 
 public class TextureDimensions {
-	public static final int SPLASH_WIDTH=196;
-	public static final int SPLASH_HEIGHT=72;
+	public static final int SPLASH_WIDTH=280;
+	public static final int SPLASH_HEIGHT=162;
 	
 	public static final int BACK_WIDTH=360;
 	public static final int BACK_HEIGHT=640;
