@@ -10,6 +10,10 @@ public class Widget {
 	private UpdateListner onUpdateListner;
 	private boolean enabled;
 
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
 	public Widget(Vector2 pos) {
 		position = pos;
 		IsClicked = false;

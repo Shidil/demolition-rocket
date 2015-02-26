@@ -5,91 +5,98 @@ filter: MipMap,Linear
 repeat: none
 box
   rotate: false
-  xy: 2, 235
+  xy: 1, 220
   size: 277, 269
   orig: 277, 269
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 2, 68
+  xy: 280, 287
+  size: 301, 202
+  orig: 301, 202
+  offset: 0, 0
+  index: -1
+logo1
+  rotate: false
+  xy: 1, 55
   size: 200, 163
   orig: 200, 163
   offset: 0, 0
   index: -1
 settings
   rotate: false
-  xy: 2, 14
+  xy: 280, 235
   size: 238, 50
   orig: 238, 50
   offset: 0, 0
   index: -1
 play
   rotate: false
-  xy: 283, 454
+  xy: 583, 439
   size: 144, 50
   orig: 144, 50
   offset: 0, 0
   index: -1
 sound
   rotate: false
-  xy: 431, 424
-  size: 79, 80
-  orig: 79, 80
-  offset: 0, 0
-  index: -1
-sound_disabled
-  rotate: false
-  xy: 283, 370
+  xy: 583, 357
   size: 79, 80
   orig: 79, 80
   offset: 0, 0
   index: -1
 rocket
   rotate: false
-  xy: 206, 135
+  xy: 203, 122
   size: 60, 96
   orig: 60, 96
   offset: 0, 0
   index: -1
+sound_disabled
+  rotate: false
+  xy: 583, 275
+  size: 79, 80
+  orig: 79, 80
+  offset: 0, 0
+  index: -1
 cloud_storm
   rotate: false
-  xy: 283, 314
+  xy: 1, 1
   size: 80, 52
   orig: 80, 52
   offset: 0, 0
   index: -1
 cloud
   rotate: false
-  xy: 283, 271
+  xy: 729, 450
   size: 79, 39
   orig: 79, 39
   offset: 0, 0
   index: -1
 sky
   rotate: false
-  xy: 206, 100
+  xy: 664, 406
   size: 33, 31
   orig: 33, 31
   offset: 0, 0
   index: -1
 coin
   rotate: false
-  xy: 366, 431
+  xy: 203, 101
   size: 19, 19
   orig: 19, 19
   offset: 0, 0
   index: -1
 particle
   rotate: false
-  xy: 2, 2
+  xy: 280, 225
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 white
   rotate: false
-  xy: 270, 230
+  xy: 265, 217
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
