@@ -124,6 +124,7 @@ public class GameScreen extends BaseScreen implements InputProcessor,
 		if(bestScore>GlobalSettings.getHighScore())
 			GlobalSettings.setHighScore(bestScore);
 		if (Gdx.input.justTouched()) {
+			
 			exit();
 		}
 	}
