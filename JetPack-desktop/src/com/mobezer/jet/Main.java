@@ -6,7 +6,7 @@ import com.mobezer.jet.Game;
 
 public class Main {
 	private static int hd=0;
-	private static int size = 0; // 0-320x480  1-360x640 2-720x1280 3-480x800 4-640x960
+	private static int size = 4; // 0-320x480  1-360x640 2-720x1280 3-480x800 4-640x960
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "JetPack";

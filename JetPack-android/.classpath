@@ -7,7 +7,8 @@
 	<classpathentry exported="true" kind="lib" path="/JetPack/libs/gdx.jar" sourcepath="/JetPack/libs/gdx-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry exported="true" kind="lib" path="E:/Developer/LibGdx/tween-engine-api.jar"/>
+	<classpathentry kind="lib" path="/home/shidil/projects/ball-legend/tween-engine-api.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
